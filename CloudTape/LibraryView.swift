@@ -5,7 +5,7 @@ struct LibraryView: View {
     @EnvironmentObject private var library: MusicLibrary
     @EnvironmentObject private var player: AudioPlayer
     @State private var isImportingFolder = false
-    @State private var searchText = ""
+    @State private var isSearching = false
 
     var body: some View {
         NavigationStack {
@@ -15,7 +15,7 @@ struct LibraryView: View {
                         isImportingFolder = true
                     }
                 } else {
-                    List(displayedTracks) { track in
+                    List(library.tracks) { track in
                         Button {
                             player.play(track: track, in: library.tracks)
                         } label: {
@@ -29,7 +29,6 @@ struct LibraryView: View {
                     .environmentObject(player)
             }
             .navigationTitle("CloudTape")
-            .searchable(text: $searchText, prompt: "曲名、アーティスト、アルバム")
             .onChange(of: library.tracks) { _, tracks in
                 player.restoreLastPlayback(in: tracks)
             }
@@ -45,13 +44,33 @@ struct LibraryView: View {
                 }
 
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        isImportingFolder = true
-                    } label: {
-                        Image(systemName: "folder.badge.plus")
+                    HStack(spacing: 14) {
+                        Button {
+                            isSearching = true
+                        } label: {
+                            Image(systemName: "magnifyingglass")
+                        }
+                        .disabled(library.tracks.isEmpty)
+                        .accessibilityLabel("Search")
+
+                        Button {
+                            isImportingFolder = true
+                        } label: {
+                            Image(systemName: "folder.badge.plus")
+                        }
+                        .accessibilityLabel("Choose Folder")
                     }
-                    .accessibilityLabel("Choose Folder")
                 }
+            }
+            .fullScreenCover(isPresented: $isSearching) {
+                TrackSearchView(
+                    tracks: library.tracks,
+                    currentTrack: player.currentTrack,
+                    close: { isSearching = false },
+                    play: { track in
+                        player.play(track: track, in: library.tracks)
+                    }
+                )
             }
             .fileImporter(
                 isPresented: $isImportingFolder,
@@ -77,16 +96,87 @@ struct LibraryView: View {
             }
         }
     }
+}
 
-    private var displayedTracks: [Track] {
+private struct TrackSearchView: View {
+    let tracks: [Track]
+    let currentTrack: Track?
+    let close: () -> Void
+    let play: (Track) -> Void
+
+    @State private var searchText = ""
+    @FocusState private var isSearchFocused: Bool
+
+    var body: some View {
+        NavigationStack {
+            VStack(spacing: 0) {
+                HStack(spacing: 12) {
+                    Image(systemName: "magnifyingglass")
+                        .font(.title3)
+                        .foregroundStyle(.secondary)
+
+                    TextField("CloudTapeを検索", text: $searchText)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                        .focused($isSearchFocused)
+                        .submitLabel(.search)
+
+                    Button(action: close) {
+                        Image(systemName: "xmark")
+                            .font(.title3.weight(.semibold))
+                            .foregroundStyle(.primary)
+                    }
+                    .accessibilityLabel("Close Search")
+                }
+                .padding(.horizontal, 16)
+                .frame(height: 56)
+                .background(.bar)
+
+                if filteredTracks.isEmpty {
+                    ContentUnavailableView {
+                        Label(emptyTitle, systemImage: "magnifyingglass")
+                    } description: {
+                        Text(emptyDescription)
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else {
+                    List(filteredTracks) { track in
+                        Button {
+                            play(track)
+                            close()
+                        } label: {
+                            TrackRow(track: track, isCurrent: currentTrack == track)
+                        }
+                    }
+                    .listStyle(.plain)
+                }
+            }
+            .background(Color(.systemGroupedBackground))
+            .onAppear {
+                isSearchFocused = true
+            }
+        }
+    }
+
+    private var filteredTracks: [Track] {
         let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !query.isEmpty else { return library.tracks }
-        return library.tracks.filter { track in
+        guard !query.isEmpty else { return [] }
+        return tracks.filter { track in
             track.title.localizedCaseInsensitiveContains(query)
                 || track.subtitle.localizedCaseInsensitiveContains(query)
                 || track.artist?.localizedCaseInsensitiveContains(query) == true
                 || track.album?.localizedCaseInsensitiveContains(query) == true
         }
+    }
+
+    private var emptyTitle: String {
+        searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? "検索してみましょう" : "見つかりません"
+    }
+
+    private var emptyDescription: String {
+        searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            ? "曲名、アーティスト、アルバムを検索できます。"
+            : "別のキーワードを試してください。"
     }
 }
 
