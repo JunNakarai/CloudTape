@@ -7,30 +7,39 @@ struct LibraryView: View {
     @EnvironmentObject private var player: AudioPlayer
     @State private var isImportingFolder = false
     @State private var isSearching = false
+    @State private var isPlayerExpanded = false
+    @State private var playerDragTranslation: CGFloat = 0
 
     var body: some View {
         NavigationStack {
-            ZStack(alignment: .bottom) {
-                if library.tracks.isEmpty {
-                    EmptyLibraryView {
-                        isImportingFolder = true
-                    }
-                } else {
-                    List(library.tracks) { track in
-                        Button {
-                            player.play(track: track, in: library.tracks)
-                        } label: {
-                            TrackRow(track: track, isCurrent: player.currentTrack == track)
-                        }
-                    }
-                    .listStyle(.plain)
-                    .safeAreaPadding(.bottom, 132)
-                }
+            GeometryReader { geometry in
+                ZStack(alignment: .bottom) {
+                    libraryContent
+                        .blur(radius: 8 * playerExpansionProgress)
 
-                PlayerBar()
+                    Color.black
+                        .opacity(0.18 * playerExpansionProgress)
+                        .ignoresSafeArea()
+                        .allowsHitTesting(isPlayerExpanded)
+
+                    PlayerBar(
+                        isExpanded: isPlayerExpanded,
+                        expansionProgress: playerExpansionProgress,
+                        maximumExpandedHeight: max(420, geometry.size.height - 110),
+                        toggleExpanded: togglePlayerExpansion
+                    )
                     .environmentObject(player)
                     .padding(.horizontal, 16)
                     .padding(.bottom, 12)
+                    .offset(y: playerCardOffset)
+                    .scaleEffect(playerCardScale, anchor: .bottom)
+                    .simultaneousGesture(playerDragGesture)
+                    .animation(.spring(response: 0.42, dampingFraction: 0.84), value: isPlayerExpanded)
+                    .animation(.interactiveSpring(response: 0.28, dampingFraction: 0.86), value: playerDragTranslation)
+                    .accessibilityAction(named: Text(isPlayerExpanded ? "ミニプレイヤーに戻す" : "フルプレイヤーを表示")) {
+                        togglePlayerExpansion()
+                    }
+                }
             }
             .navigationTitle("CloudTape")
             .onChange(of: library.tracks) { _, tracks in
@@ -98,6 +107,89 @@ struct LibraryView: View {
             } message: {
                 Text(library.errorMessage ?? "")
             }
+        }
+    }
+
+    @ViewBuilder
+    private var libraryContent: some View {
+        if library.tracks.isEmpty {
+            EmptyLibraryView {
+                isImportingFolder = true
+            }
+        } else {
+            List(library.tracks) { track in
+                Button {
+                    player.play(track: track, in: library.tracks)
+                } label: {
+                    TrackRow(track: track, isCurrent: player.currentTrack == track)
+                }
+            }
+            .listStyle(.plain)
+            .safeAreaPadding(.bottom, 132)
+        }
+    }
+
+    private var playerExpansionProgress: CGFloat {
+        let distance: CGFloat = 220
+        if isPlayerExpanded {
+            return 1 - min(max(playerDragTranslation / distance, 0), 1)
+        }
+        return min(max(-playerDragTranslation / distance, 0), 1)
+    }
+
+    private var playerCardOffset: CGFloat {
+        if isPlayerExpanded {
+            return max(playerDragTranslation, 0)
+        }
+        return min(playerDragTranslation * 0.32, 0)
+    }
+
+    private var playerCardScale: CGFloat {
+        if isPlayerExpanded {
+            return 1 - min(max(playerDragTranslation / 620, 0), 0.045)
+        }
+        return 1 + playerExpansionProgress * 0.018
+    }
+
+    private var playerDragGesture: some Gesture {
+        DragGesture(minimumDistance: 18)
+            .onChanged { value in
+                guard player.currentTrack != nil else { return }
+                guard isMostlyVertical(value) else { return }
+                playerDragTranslation = value.translation.height
+            }
+            .onEnded { value in
+                guard player.currentTrack != nil else { return }
+                defer {
+                    withAnimation(.spring(response: 0.42, dampingFraction: 0.84)) {
+                        playerDragTranslation = 0
+                    }
+                }
+                guard isMostlyVertical(value) else { return }
+
+                let translation = value.translation.height
+                let predicted = value.predictedEndTranslation.height
+                withAnimation(.spring(response: 0.42, dampingFraction: 0.84)) {
+                    if isPlayerExpanded {
+                        if translation > 90 || predicted > 190 {
+                            isPlayerExpanded = false
+                        }
+                    } else if translation < -80 || predicted < -170 {
+                        isPlayerExpanded = true
+                    }
+                }
+            }
+    }
+
+    private func isMostlyVertical(_ value: DragGesture.Value) -> Bool {
+        abs(value.translation.height) > abs(value.translation.width) * 1.25
+    }
+
+    private func togglePlayerExpansion() {
+        guard player.currentTrack != nil else { return }
+        withAnimation(.spring(response: 0.42, dampingFraction: 0.84)) {
+            isPlayerExpanded.toggle()
+            playerDragTranslation = 0
         }
     }
 }
@@ -231,74 +323,27 @@ private struct TrackRow: View {
 
 private struct PlayerBar: View {
     @EnvironmentObject private var player: AudioPlayer
+    let isExpanded: Bool
+    let expansionProgress: CGFloat
+    let maximumExpandedHeight: CGFloat
+    let toggleExpanded: () -> Void
 
     var body: some View {
-        VStack(spacing: 10) {
-            if player.currentTrack != nil {
-                VStack(spacing: 4) {
-                    Slider(
-                        value: Binding(
-                            get: { min(player.currentTime, sliderUpperBound) },
-                            set: { player.seek(to: $0) }
-                        ),
-                        in: 0...sliderUpperBound
-                    )
-                    HStack {
-                        Text(formatTime(player.currentTime))
-                        Spacer()
-                        Text(formatTime(player.duration))
-                    }
-                    .font(.caption2)
-                    .monospacedDigit()
-                    .foregroundStyle(.white.opacity(0.72))
-                }
+        VStack(spacing: isExpanded ? 20 : 10) {
+            dragHandle
+
+            if isExpanded {
+                expandedContent
+            } else {
+                collapsedContent
             }
-            HStack(spacing: 14) {
-                if let currentTrack = player.currentTrack {
-                    ArtworkThumbnail(track: currentTrack, isCurrent: player.isPlaying, size: 44)
-                }
-
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(player.currentTrack?.title ?? "未再生")
-                        .font(.headline)
-                        .lineLimit(1)
-                        .foregroundStyle(.white)
-                    Text(player.currentTrack?.subtitle ?? "曲を選択してください")
-                        .font(.caption)
-                        .foregroundStyle(.white.opacity(0.68))
-                        .lineLimit(1)
-                }
-
-                Spacer()
-
-                Button {
-                    player.previous()
-                } label: {
-                    Image(systemName: "backward.fill")
-                }
-                .disabled(player.currentTrack == nil)
-
-                Button {
-                    player.togglePlayPause()
-                } label: {
-                    Image(systemName: player.isPlaying ? "pause.circle.fill" : "play.circle.fill")
-                        .font(.system(size: 36))
-                }
-                .disabled(player.currentTrack == nil)
-
-                Button {
-                    player.next()
-                } label: {
-                    Image(systemName: "forward.fill")
-                }
-                .disabled(player.currentTrack == nil)
-            }
-            .buttonStyle(.plain)
-            .foregroundStyle(.white)
         }
         .tint(.white)
         .padding(.horizontal, 16)
-        .padding(.vertical, 12)
+        .padding(.top, 9)
+        .padding(.bottom, isExpanded ? 22 : 12)
+        .frame(maxWidth: .infinity)
+        .frame(height: isExpanded ? min(maximumExpandedHeight, 620) : nil)
         .background {
             RoundedRectangle(cornerRadius: 24, style: .continuous)
                 .fill(.ultraThinMaterial)
@@ -308,9 +353,9 @@ private struct PlayerBar: View {
                         .fill(
                             LinearGradient(
                                 colors: [
-                                    Color.white.opacity(0.12),
-                                    Color.black.opacity(0.24),
-                                    Color.black.opacity(0.46)
+                                    Color.white.opacity(0.12 + 0.04 * expansionProgress),
+                                    Color.black.opacity(0.24 + 0.06 * expansionProgress),
+                                    Color.black.opacity(0.46 + 0.12 * expansionProgress)
                                 ],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
@@ -342,11 +387,138 @@ private struct PlayerBar: View {
         }
         .shadow(color: .black.opacity(0.30), radius: 24, x: 0, y: 14)
         .shadow(color: .black.opacity(0.16), radius: 4, x: 0, y: 2)
+        .accessibilityElement(children: .contain)
+        .accessibilityHint("上下にドラッグしてプレイヤーを開閉できます")
     }
 
     private var sliderUpperBound: TimeInterval {
         guard player.duration.isFinite, player.duration > 0 else { return 1 }
         return player.duration
+    }
+
+    private var dragHandle: some View {
+        Capsule()
+            .fill(Color.white.opacity(0.32))
+            .frame(width: 38, height: 4)
+            .padding(.bottom, isExpanded ? 4 : 0)
+            .contentShape(Rectangle())
+            .onTapGesture(perform: toggleExpanded)
+            .accessibilityHidden(true)
+    }
+
+    private var collapsedContent: some View {
+        VStack(spacing: 10) {
+            progressSlider
+
+            HStack(spacing: 14) {
+                if let currentTrack = player.currentTrack {
+                    ArtworkThumbnail(track: currentTrack, isCurrent: player.isPlaying, size: 44)
+                }
+
+                trackText
+
+                Spacer()
+
+                transportControls(playButtonSize: 36, spacing: 14)
+            }
+        }
+    }
+
+    private var expandedContent: some View {
+        VStack(spacing: 22) {
+            Spacer(minLength: 0)
+
+            if let currentTrack = player.currentTrack {
+                ArtworkThumbnail(track: currentTrack, isCurrent: player.isPlaying, size: 230)
+                    .shadow(color: .black.opacity(0.28), radius: 20, x: 0, y: 12)
+            }
+
+            VStack(spacing: 6) {
+                Text(player.currentTrack?.title ?? "未再生")
+                    .font(.title3.weight(.semibold))
+                    .lineLimit(2)
+                    .multilineTextAlignment(.center)
+                    .foregroundStyle(.white)
+
+                Text(player.currentTrack?.subtitle ?? "曲を選択してください")
+                    .font(.subheadline)
+                    .lineLimit(2)
+                    .multilineTextAlignment(.center)
+                    .foregroundStyle(.white.opacity(0.68))
+            }
+            .frame(maxWidth: .infinity)
+
+            progressSlider
+
+            transportControls(playButtonSize: 58, spacing: 36)
+
+            Spacer(minLength: 0)
+        }
+    }
+
+    private var progressSlider: some View {
+        Group {
+            if player.currentTrack != nil {
+                VStack(spacing: 4) {
+                    Slider(
+                        value: Binding(
+                            get: { min(player.currentTime, sliderUpperBound) },
+                            set: { player.seek(to: $0) }
+                        ),
+                        in: 0...sliderUpperBound
+                    )
+                    HStack {
+                        Text(formatTime(player.currentTime))
+                        Spacer()
+                        Text(formatTime(player.duration))
+                    }
+                    .font(.caption2)
+                    .monospacedDigit()
+                    .foregroundStyle(.white.opacity(0.72))
+                }
+            }
+        }
+    }
+
+    private var trackText: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(player.currentTrack?.title ?? "未再生")
+                .font(.headline)
+                .lineLimit(1)
+                .foregroundStyle(.white)
+            Text(player.currentTrack?.subtitle ?? "曲を選択してください")
+                .font(.caption)
+                .foregroundStyle(.white.opacity(0.68))
+                .lineLimit(1)
+        }
+    }
+
+    private func transportControls(playButtonSize: CGFloat, spacing: CGFloat) -> some View {
+        HStack(spacing: spacing) {
+            Button {
+                player.previous()
+            } label: {
+                Image(systemName: "backward.fill")
+            }
+            .disabled(player.currentTrack == nil)
+
+            Button {
+                player.togglePlayPause()
+            } label: {
+                Image(systemName: player.isPlaying ? "pause.circle.fill" : "play.circle.fill")
+                    .font(.system(size: playButtonSize))
+            }
+            .disabled(player.currentTrack == nil)
+
+            Button {
+                player.next()
+            } label: {
+                Image(systemName: "forward.fill")
+            }
+            .disabled(player.currentTrack == nil)
+        }
+        .buttonStyle(.plain)
+        .foregroundStyle(.white)
     }
 }
 
