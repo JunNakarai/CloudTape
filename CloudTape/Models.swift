@@ -52,10 +52,13 @@ struct Track: Identifiable, Equatable {
 
         do {
             let (items, time) = try await (metadata, duration)
+            let title = await stringValue(for: .commonIdentifierTitle, commonKey: .commonKeyTitle, in: items)
+            let artist = await stringValue(for: .commonIdentifierArtist, commonKey: .commonKeyArtist, in: items)
+            let album = await stringValue(for: .commonIdentifierAlbumName, commonKey: .commonKeyAlbumName, in: items)
             return (
-                stringValue(for: .commonIdentifierTitle, in: items),
-                stringValue(for: .commonIdentifierArtist, in: items),
-                stringValue(for: .commonIdentifierAlbumName, in: items),
+                title,
+                artist,
+                album,
                 time.seconds.isFinite ? time.seconds : nil
             )
         } catch {
@@ -63,10 +66,16 @@ struct Track: Identifiable, Equatable {
         }
     }
 
-    private static func stringValue(for identifier: AVMetadataIdentifier, in items: [AVMetadataItem]) -> String? {
-        items.first { $0.commonKey?.rawValue == identifier.rawValue || $0.identifier == identifier }?
-            .stringValue?
-            .trimmingCharacters(in: .whitespacesAndNewlines)
+    private static func stringValue(
+        for identifier: AVMetadataIdentifier,
+        commonKey: AVMetadataKey,
+        in items: [AVMetadataItem]
+    ) async -> String? {
+        guard let item = items.first(where: { $0.identifier == identifier || $0.commonKey == commonKey }) else {
+            return nil
+        }
+        let value = try? await item.load(.stringValue)
+        return value?.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 }
 

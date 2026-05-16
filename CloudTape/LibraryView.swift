@@ -131,10 +131,10 @@ private struct PlayerBar: View {
                 VStack(spacing: 4) {
                     Slider(
                         value: Binding(
-                            get: { player.currentTime },
+                            get: { min(player.currentTime, sliderUpperBound) },
                             set: { player.seek(to: $0) }
                         ),
-                        in: 0...max(player.duration, 1)
+                        in: 0...sliderUpperBound
                     )
                     HStack {
                         Text(formatTime(player.currentTime))
@@ -187,6 +187,11 @@ private struct PlayerBar: View {
             .padding(.bottom, 10)
         }
         .background(.bar)
+    }
+
+    private var sliderUpperBound: TimeInterval {
+        guard player.duration.isFinite, player.duration > 0 else { return 1 }
+        return player.duration
     }
 }
 

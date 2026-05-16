@@ -59,10 +59,11 @@ final class AudioPlayer: ObservableObject {
 
     func seek(to seconds: TimeInterval) {
         guard let player else { return }
-        let target = CMTime(seconds: max(0, seconds), preferredTimescale: 600)
+        let safeSeconds = sanitizedTime(seconds)
+        let target = CMTime(seconds: safeSeconds, preferredTimescale: 600)
         player.seek(to: target, toleranceBefore: .zero, toleranceAfter: .zero) { [weak self] _ in
             Task { @MainActor in
-                self?.currentTime = seconds
+                self?.currentTime = safeSeconds
                 self?.updateNowPlaying()
             }
         }
@@ -113,7 +114,7 @@ final class AudioPlayer: ObservableObject {
         let item = AVPlayerItem(url: queue[currentIndex].url)
         player = AVPlayer(playerItem: item)
         currentTime = 0
-        duration = queue[currentIndex].duration ?? 0
+        duration = sanitizedDuration(queue[currentIndex].duration)
         endObserver = NotificationCenter.default.addObserver(
             forName: .AVPlayerItemDidPlayToEndTime,
             object: item,
@@ -126,9 +127,10 @@ final class AudioPlayer: ObservableObject {
             queue: .main
         ) { [weak self] time in
             Task { @MainActor in
-                self?.currentTime = time.seconds.isFinite ? time.seconds : 0
-                self?.duration = self?.player?.currentItem?.duration.seconds ?? self?.duration ?? 0
-                self?.updateNowPlaying()
+                guard let self else { return }
+                self.currentTime = self.sanitizedTime(time.seconds)
+                self.duration = self.sanitizedDuration(self.player?.currentItem?.duration.seconds ?? self.duration)
+                self.updateNowPlaying()
             }
         }
 
@@ -188,5 +190,18 @@ final class AudioPlayer: ObservableObject {
             info[MPMediaItemPropertyArtist] = artist
         }
         MPNowPlayingInfoCenter.default().nowPlayingInfo = info
+    }
+
+    private func sanitizedTime(_ seconds: TimeInterval) -> TimeInterval {
+        guard seconds.isFinite, seconds > 0 else { return 0 }
+        if duration > 0 {
+            return min(seconds, duration)
+        }
+        return seconds
+    }
+
+    private func sanitizedDuration(_ seconds: TimeInterval?) -> TimeInterval {
+        guard let seconds, seconds.isFinite, seconds > 0 else { return 0 }
+        return seconds
     }
 }

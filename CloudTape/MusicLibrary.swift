@@ -8,9 +8,14 @@ final class MusicLibrary: ObservableObject {
     @Published var errorMessage: String?
 
     private let bookmarkKey = "selectedMusicFolderBookmark"
+    private var accessedFolderURL: URL?
     private let supportedExtensions: Set<String> = [
         "mp3", "m4a", "aac", "alac", "flac", "wav", "aiff", "aif", "m4b"
     ]
+
+    deinit {
+        accessedFolderURL?.stopAccessingSecurityScopedResource()
+    }
 
     func restoreLastFolder() {
         guard let data = UserDefaults.standard.data(forKey: bookmarkKey) else { return }
@@ -34,13 +39,12 @@ final class MusicLibrary: ObservableObject {
 
     func loadFolder(_ url: URL) {
         let didAccess = url.startAccessingSecurityScopedResource()
-        defer {
-            if didAccess {
-                url.stopAccessingSecurityScopedResource()
-            }
-        }
 
         do {
+            if didAccess {
+                accessedFolderURL?.stopAccessingSecurityScopedResource()
+                accessedFolderURL = url
+            }
             saveBookmark(for: url)
             let urls = try audioFiles(in: url)
             folderURL = url
