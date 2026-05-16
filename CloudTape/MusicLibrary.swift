@@ -78,7 +78,12 @@ final class MusicLibrary: ObservableObject {
     private func audioFiles(in folder: URL) throws -> [URL] {
         guard let enumerator = FileManager.default.enumerator(
             at: folder,
-            includingPropertiesForKeys: [.isRegularFileKey, .localizedNameKey],
+            includingPropertiesForKeys: [
+                .isRegularFileKey,
+                .isUbiquitousItemKey,
+                .localizedNameKey,
+                .ubiquitousItemDownloadingStatusKey
+            ],
             options: [.skipsHiddenFiles]
         ) else {
             return []
@@ -89,6 +94,7 @@ final class MusicLibrary: ObservableObject {
             let resource = try fileURL.resourceValues(forKeys: [.isRegularFileKey])
             guard resource.isRegularFile == true else { continue }
             guard supportedExtensions.contains(fileURL.pathExtension.lowercased()) else { continue }
+            requestDownloadIfNeeded(fileURL)
             urls.append(fileURL)
         }
 
@@ -107,6 +113,20 @@ final class MusicLibrary: ObservableObject {
             UserDefaults.standard.set(data, forKey: bookmarkKey)
         } catch {
             errorMessage = "フォルダ権限を保存できませんでした。"
+        }
+    }
+
+    private func requestDownloadIfNeeded(_ url: URL) {
+        do {
+            let values = try url.resourceValues(forKeys: [
+                .isUbiquitousItemKey,
+                .ubiquitousItemDownloadingStatusKey
+            ])
+            guard values.isUbiquitousItem == true else { return }
+            guard values.ubiquitousItemDownloadingStatus != .current else { return }
+            try FileManager.default.startDownloadingUbiquitousItem(at: url)
+        } catch {
+            print("iCloud download request failed: \(error)")
         }
     }
 }

@@ -5,6 +5,7 @@ struct LibraryView: View {
     @EnvironmentObject private var library: MusicLibrary
     @EnvironmentObject private var player: AudioPlayer
     @State private var isImportingFolder = false
+    @State private var searchText = ""
 
     var body: some View {
         NavigationStack {
@@ -14,7 +15,7 @@ struct LibraryView: View {
                         isImportingFolder = true
                     }
                 } else {
-                    List(library.tracks) { track in
+                    List(displayedTracks) { track in
                         Button {
                             player.play(track: track, in: library.tracks)
                         } label: {
@@ -28,6 +29,10 @@ struct LibraryView: View {
                     .environmentObject(player)
             }
             .navigationTitle("CloudTape")
+            .searchable(text: $searchText, prompt: "曲名、アーティスト、アルバム")
+            .onChange(of: library.tracks) { _, tracks in
+                player.restoreLastPlayback(in: tracks)
+            }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button {
@@ -70,6 +75,17 @@ struct LibraryView: View {
             } message: {
                 Text(library.errorMessage ?? "")
             }
+        }
+    }
+
+    private var displayedTracks: [Track] {
+        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !query.isEmpty else { return library.tracks }
+        return library.tracks.filter { track in
+            track.title.localizedCaseInsensitiveContains(query)
+                || track.subtitle.localizedCaseInsensitiveContains(query)
+                || track.artist?.localizedCaseInsensitiveContains(query) == true
+                || track.album?.localizedCaseInsensitiveContains(query) == true
         }
     }
 }

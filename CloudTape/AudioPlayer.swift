@@ -16,6 +16,8 @@ final class AudioPlayer: ObservableObject {
     private var player: AVPlayer?
     private var endObserver: NSObjectProtocol?
     private var timeObserver: Any?
+    private let lastTrackPathKey = "lastTrackPath"
+    private let lastPlaybackPositionKey = "lastPlaybackPosition"
 
     init() {
         setupRemoteCommands()
@@ -42,7 +44,18 @@ final class AudioPlayer: ObservableObject {
     func play(track: Track, in allTracks: [Track]) {
         tracks = allTracks
         rebuildQueue(startingAt: track)
-        playCurrent()
+        playCurrent(autoPlay: true)
+    }
+
+    func restoreLastPlayback(in allTracks: [Track]) {
+        guard currentTrack == nil else { return }
+        guard let path = UserDefaults.standard.string(forKey: lastTrackPathKey) else { return }
+        guard let track = allTracks.first(where: { $0.url.path == path }) else { return }
+
+        tracks = allTracks
+        rebuildQueue(startingAt: track)
+        playCurrent(autoPlay: false)
+        seek(to: UserDefaults.standard.double(forKey: lastPlaybackPositionKey))
     }
 
     func togglePlayPause() {
@@ -64,6 +77,7 @@ final class AudioPlayer: ObservableObject {
         player.seek(to: target, toleranceBefore: .zero, toleranceAfter: .zero) { [weak self] _ in
             Task { @MainActor in
                 self?.currentTime = safeSeconds
+                self?.savePlaybackState()
                 self?.updateNowPlaying()
             }
         }
@@ -72,13 +86,13 @@ final class AudioPlayer: ObservableObject {
     func next() {
         guard !queue.isEmpty else { return }
         currentIndex = min(currentIndex + 1, queue.count - 1)
-        playCurrent()
+        playCurrent(autoPlay: true)
     }
 
     func previous() {
         guard !queue.isEmpty else { return }
         currentIndex = max(currentIndex - 1, 0)
-        playCurrent()
+        playCurrent(autoPlay: true)
     }
 
     func toggleShuffle() {
@@ -99,9 +113,10 @@ final class AudioPlayer: ObservableObject {
         currentIndex = queue.firstIndex(of: track) ?? 0
     }
 
-    private func playCurrent() {
+    private func playCurrent(autoPlay: Bool) {
         guard queue.indices.contains(currentIndex) else { return }
         currentTrack = queue[currentIndex]
+        savePlaybackState()
 
         if let endObserver {
             NotificationCenter.default.removeObserver(endObserver)
@@ -130,12 +145,15 @@ final class AudioPlayer: ObservableObject {
                 guard let self else { return }
                 self.currentTime = self.sanitizedTime(time.seconds)
                 self.duration = self.sanitizedDuration(self.player?.currentItem?.duration.seconds ?? self.duration)
+                self.savePlaybackState()
                 self.updateNowPlaying()
             }
         }
 
-        player?.play()
-        isPlaying = true
+        if autoPlay {
+            player?.play()
+        }
+        isPlaying = autoPlay
         updateNowPlaying()
     }
 
@@ -145,7 +163,7 @@ final class AudioPlayer: ObservableObject {
             return
         }
         currentIndex += 1
-        playCurrent()
+        playCurrent(autoPlay: true)
     }
 
     private func setupRemoteCommands() {
@@ -190,6 +208,12 @@ final class AudioPlayer: ObservableObject {
             info[MPMediaItemPropertyArtist] = artist
         }
         MPNowPlayingInfoCenter.default().nowPlayingInfo = info
+    }
+
+    private func savePlaybackState() {
+        guard let currentTrack else { return }
+        UserDefaults.standard.set(currentTrack.url.path, forKey: lastTrackPathKey)
+        UserDefaults.standard.set(currentTime, forKey: lastPlaybackPositionKey)
     }
 
     private func sanitizedTime(_ seconds: TimeInterval) -> TimeInterval {
