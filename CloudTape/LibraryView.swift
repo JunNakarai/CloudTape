@@ -10,7 +10,7 @@ struct LibraryView: View {
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 0) {
+            ZStack(alignment: .bottom) {
                 if library.tracks.isEmpty {
                     EmptyLibraryView {
                         isImportingFolder = true
@@ -24,10 +24,13 @@ struct LibraryView: View {
                         }
                     }
                     .listStyle(.plain)
+                    .safeAreaPadding(.bottom, 132)
                 }
 
                 PlayerBar()
                     .environmentObject(player)
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 12)
             }
             .navigationTitle("CloudTape")
             .onChange(of: library.tracks) { _, tracks in
@@ -231,7 +234,6 @@ private struct PlayerBar: View {
 
     var body: some View {
         VStack(spacing: 10) {
-            Divider()
             if player.currentTrack != nil {
                 VStack(spacing: 4) {
                     Slider(
@@ -248,9 +250,8 @@ private struct PlayerBar: View {
                     }
                     .font(.caption2)
                     .monospacedDigit()
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.white.opacity(0.72))
                 }
-                .padding(.horizontal, 16)
             }
             HStack(spacing: 14) {
                 if let currentTrack = player.currentTrack {
@@ -261,9 +262,10 @@ private struct PlayerBar: View {
                     Text(player.currentTrack?.title ?? "未再生")
                         .font(.headline)
                         .lineLimit(1)
+                        .foregroundStyle(.white)
                     Text(player.currentTrack?.subtitle ?? "曲を選択してください")
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(.white.opacity(0.68))
                         .lineLimit(1)
                 }
 
@@ -292,10 +294,54 @@ private struct PlayerBar: View {
                 .disabled(player.currentTrack == nil)
             }
             .buttonStyle(.plain)
-            .padding(.horizontal, 16)
-            .padding(.bottom, 10)
+            .foregroundStyle(.white)
         }
-        .background(.bar)
+        .tint(.white)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+        .background {
+            RoundedRectangle(cornerRadius: 24, style: .continuous)
+                .fill(.ultraThinMaterial)
+                .environment(\.colorScheme, .dark)
+                .overlay {
+                    RoundedRectangle(cornerRadius: 24, style: .continuous)
+                        .fill(
+                            LinearGradient(
+                                colors: [
+                                    Color.white.opacity(0.12),
+                                    Color.black.opacity(0.24),
+                                    Color.black.opacity(0.46)
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                }
+        }
+        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: 24, style: .continuous)
+                .strokeBorder(Color.white.opacity(0.18), lineWidth: 0.8)
+        }
+        .overlay(alignment: .top) {
+            RoundedRectangle(cornerRadius: 24, style: .continuous)
+                .fill(
+                    LinearGradient(
+                        colors: [
+                            Color.white.opacity(0.28),
+                            Color.white.opacity(0.06),
+                            Color.clear
+                        ],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
+                .frame(height: 30)
+                .blendMode(.screen)
+                .allowsHitTesting(false)
+        }
+        .shadow(color: .black.opacity(0.30), radius: 24, x: 0, y: 14)
+        .shadow(color: .black.opacity(0.16), radius: 4, x: 0, y: 2)
     }
 
     private var sliderUpperBound: TimeInterval {
