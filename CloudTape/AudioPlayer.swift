@@ -6,6 +6,8 @@ import SwiftUI
 final class AudioPlayer: ObservableObject {
     @Published private(set) var currentTrack: Track?
     @Published private(set) var isPlaying = false
+    @Published private(set) var currentTime: TimeInterval = 0
+    @Published private(set) var duration: TimeInterval = 0
     @Published var mode: PlaybackMode = .ordered
 
     private var tracks: [Track] = []
@@ -13,6 +15,7 @@ final class AudioPlayer: ObservableObject {
     private var currentIndex = 0
     private var player: AVPlayer?
     private var endObserver: NSObjectProtocol?
+    private var timeObserver: Any?
 
     init() {
         setupRemoteCommands()
@@ -21,6 +24,9 @@ final class AudioPlayer: ObservableObject {
     deinit {
         if let endObserver {
             NotificationCenter.default.removeObserver(endObserver)
+        }
+        if let timeObserver {
+            player?.removeTimeObserver(timeObserver)
         }
     }
 
@@ -49,6 +55,17 @@ final class AudioPlayer: ObservableObject {
             isPlaying = true
         }
         updateNowPlaying()
+    }
+
+    func seek(to seconds: TimeInterval) {
+        guard let player else { return }
+        let target = CMTime(seconds: max(0, seconds), preferredTimescale: 600)
+        player.seek(to: target, toleranceBefore: .zero, toleranceAfter: .zero) { [weak self] _ in
+            Task { @MainActor in
+                self?.currentTime = seconds
+                self?.updateNowPlaying()
+            }
+        }
     }
 
     func next() {
@@ -88,15 +105,31 @@ final class AudioPlayer: ObservableObject {
         if let endObserver {
             NotificationCenter.default.removeObserver(endObserver)
         }
+        if let timeObserver {
+            player?.removeTimeObserver(timeObserver)
+            self.timeObserver = nil
+        }
 
         let item = AVPlayerItem(url: queue[currentIndex].url)
         player = AVPlayer(playerItem: item)
+        currentTime = 0
+        duration = queue[currentIndex].duration ?? 0
         endObserver = NotificationCenter.default.addObserver(
             forName: .AVPlayerItemDidPlayToEndTime,
             object: item,
             queue: .main
         ) { [weak self] _ in
             Task { @MainActor in self?.nextAfterFinish() }
+        }
+        timeObserver = player?.addPeriodicTimeObserver(
+            forInterval: CMTime(seconds: 0.5, preferredTimescale: 600),
+            queue: .main
+        ) { [weak self] time in
+            Task { @MainActor in
+                self?.currentTime = time.seconds.isFinite ? time.seconds : 0
+                self?.duration = self?.player?.currentItem?.duration.seconds ?? self?.duration ?? 0
+                self?.updateNowPlaying()
+            }
         }
 
         player?.play()
@@ -131,14 +164,29 @@ final class AudioPlayer: ObservableObject {
             Task { @MainActor in self?.previous() }
             return .success
         }
+        center.changePlaybackPositionCommand.addTarget { [weak self] event in
+            guard let event = event as? MPChangePlaybackPositionCommandEvent else {
+                return .commandFailed
+            }
+            Task { @MainActor in self?.seek(to: event.positionTime) }
+            return .success
+        }
     }
 
     private func updateNowPlaying() {
         guard let currentTrack else { return }
-        MPNowPlayingInfoCenter.default().nowPlayingInfo = [
+        var info: [String: Any] = [
             MPMediaItemPropertyTitle: currentTrack.title,
             MPMediaItemPropertyAlbumTitle: currentTrack.subtitle,
-            MPNowPlayingInfoPropertyPlaybackRate: isPlaying ? 1.0 : 0.0
+            MPNowPlayingInfoPropertyPlaybackRate: isPlaying ? 1.0 : 0.0,
+            MPNowPlayingInfoPropertyElapsedPlaybackTime: currentTime
         ]
+        if duration > 0 {
+            info[MPMediaItemPropertyPlaybackDuration] = duration
+        }
+        if let artist = currentTrack.artist {
+            info[MPMediaItemPropertyArtist] = artist
+        }
+        MPNowPlayingInfoCenter.default().nowPlayingInfo = info
     }
 }

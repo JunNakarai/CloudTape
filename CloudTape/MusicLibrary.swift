@@ -46,8 +46,28 @@ final class MusicLibrary: ObservableObject {
             folderURL = url
             tracks = urls.map { Track.from(url: $0, root: url) }
             errorMessage = tracks.isEmpty ? "このフォルダに対応音声ファイルが見つかりませんでした。" : nil
+            enrichMetadata()
         } catch {
             errorMessage = "フォルダを読み込めませんでした: \(error.localizedDescription)"
+        }
+    }
+
+    private func enrichMetadata() {
+        let currentTracks = tracks
+        Task {
+            var enriched: [Track] = []
+            for track in currentTracks {
+                let metadata = await Track.metadata(for: track.url)
+                enriched.append(track.withMetadata(
+                    title: metadata.title,
+                    artist: metadata.artist,
+                    album: metadata.album,
+                    duration: metadata.duration
+                ))
+            }
+
+            guard folderURL != nil else { return }
+            tracks = enriched
         }
     }
 

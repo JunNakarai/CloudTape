@@ -104,10 +104,17 @@ private struct TrackRow: View {
                 Text(track.title)
                     .lineLimit(1)
                     .foregroundStyle(.primary)
-                Text(track.subtitle)
-                    .font(.caption)
-                    .lineLimit(1)
-                    .foregroundStyle(.secondary)
+                HStack {
+                    Text(track.subtitle)
+                        .lineLimit(1)
+                    Spacer()
+                    if let duration = track.duration, duration > 0 {
+                        Text(formatTime(duration))
+                            .monospacedDigit()
+                    }
+                }
+                .font(.caption)
+                .foregroundStyle(.secondary)
             }
         }
         .padding(.vertical, 4)
@@ -120,6 +127,26 @@ private struct PlayerBar: View {
     var body: some View {
         VStack(spacing: 10) {
             Divider()
+            if player.currentTrack != nil {
+                VStack(spacing: 4) {
+                    Slider(
+                        value: Binding(
+                            get: { player.currentTime },
+                            set: { player.seek(to: $0) }
+                        ),
+                        in: 0...max(player.duration, 1)
+                    )
+                    HStack {
+                        Text(formatTime(player.currentTime))
+                        Spacer()
+                        Text(formatTime(player.duration))
+                    }
+                    .font(.caption2)
+                    .monospacedDigit()
+                    .foregroundStyle(.secondary)
+                }
+                .padding(.horizontal, 16)
+            }
             HStack(spacing: 14) {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(player.currentTrack?.title ?? "未再生")
@@ -161,4 +188,12 @@ private struct PlayerBar: View {
         }
         .background(.bar)
     }
+}
+
+private func formatTime(_ seconds: TimeInterval) -> String {
+    guard seconds.isFinite, seconds > 0 else { return "0:00" }
+    let total = Int(seconds.rounded())
+    let minutes = total / 60
+    let seconds = total % 60
+    return "\(minutes):\(String(format: "%02d", seconds))"
 }
