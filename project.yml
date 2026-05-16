@@ -1,0 +1,28 @@
+name: CloudTape
+options:
+  bundleIdPrefix: io.github.junnakarai
+  deploymentTarget:
+    iOS: "17.0"
+settings:
+  base:
+    MARKETING_VERSION: "0.1.0"
+    CURRENT_PROJECT_VERSION: "1"
+targets:
+  CloudTape:
+    type: application
+    platform: iOS
+    sources:
+      - path: CloudTape
+    info:
+      path: CloudTape/Info.plist
+      properties:
+        CFBundleDisplayName: CloudTape
+        UILaunchScreen: {}
+        UIBackgroundModes:
+          - audio
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: io.github.junnakarai.cloudtape
+        INFOPLIST_FILE: CloudTape/Info.plist
+        CODE_SIGN_STYLE: Automatic
+        DEVELOPMENT_TEAM: MU94BSN9Y3

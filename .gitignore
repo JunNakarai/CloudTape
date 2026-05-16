@@ -1,0 +1,15 @@
+# Xcode user state
+*.xcuserstate
+xcuserdata/
+
+# Build products
+Build/
+DerivedData/
+*.xcresult
+CloudTape 2.xcodeproj/
+
+# Swift Package Manager
+.build/
+
+# macOS metadata
+.DS_Store
