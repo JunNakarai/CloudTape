@@ -1,6 +1,7 @@
 import AVFoundation
 import MediaPlayer
 import SwiftUI
+import UIKit
 
 @MainActor
 final class AudioPlayer: ObservableObject {
@@ -206,6 +207,11 @@ final class AudioPlayer: ObservableObject {
         }
         if let artist = currentTrack.artist {
             info[MPMediaItemPropertyArtist] = artist
+        }
+        if let artworkData = currentTrack.artworkData, let image = UIImage(data: artworkData) {
+            info[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(boundsSize: image.size) { _ in
+                image
+            }
         }
         MPNowPlayingInfoCenter.default().nowPlayingInfo = info
     }

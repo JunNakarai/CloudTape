@@ -6,7 +6,7 @@
 - Add elapsed time, remaining duration, and a seek slider. Done.
 - Improve iCloud Drive handling for files that are visible but not downloaded. Done.
 - Persist the selected folder and last playback position more reliably. Done.
-- Add artwork extraction and display.
+- Add artwork extraction and display. Done.
 - Add search plus artist/album grouping. Search done; grouping remains.
 
 ## Later

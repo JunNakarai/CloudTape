@@ -66,7 +66,8 @@ final class MusicLibrary: ObservableObject {
                     title: metadata.title,
                     artist: metadata.artist,
                     album: metadata.album,
-                    duration: metadata.duration
+                    duration: metadata.duration,
+                    artworkData: metadata.artworkData
                 ))
             }
 

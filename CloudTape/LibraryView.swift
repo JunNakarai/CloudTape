@@ -1,5 +1,6 @@
 import SwiftUI
 import UniformTypeIdentifiers
+import UIKit
 
 struct LibraryView: View {
     @EnvironmentObject private var library: MusicLibrary
@@ -202,9 +203,7 @@ private struct TrackRow: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            Image(systemName: isCurrent ? "speaker.wave.2.fill" : "music.note")
-                .foregroundStyle(isCurrent ? .blue : .secondary)
-                .frame(width: 24)
+            ArtworkThumbnail(track: track, isCurrent: isCurrent, size: 42)
 
             VStack(alignment: .leading, spacing: 3) {
                 Text(track.title)
@@ -254,6 +253,10 @@ private struct PlayerBar: View {
                 .padding(.horizontal, 16)
             }
             HStack(spacing: 14) {
+                if let currentTrack = player.currentTrack {
+                    ArtworkThumbnail(track: currentTrack, isCurrent: player.isPlaying, size: 44)
+                }
+
                 VStack(alignment: .leading, spacing: 2) {
                     Text(player.currentTrack?.title ?? "未再生")
                         .font(.headline)
@@ -298,6 +301,34 @@ private struct PlayerBar: View {
     private var sliderUpperBound: TimeInterval {
         guard player.duration.isFinite, player.duration > 0 else { return 1 }
         return player.duration
+    }
+}
+
+private struct ArtworkThumbnail: View {
+    let track: Track
+    let isCurrent: Bool
+    let size: CGFloat
+
+    var body: some View {
+        ZStack {
+            if let artworkData = track.artworkData, let image = UIImage(data: artworkData) {
+                Image(uiImage: image)
+                    .resizable()
+                    .scaledToFill()
+            } else {
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(Color(.tertiarySystemFill))
+                Image(systemName: isCurrent ? "speaker.wave.2.fill" : "music.note")
+                    .foregroundStyle(isCurrent ? .blue : .secondary)
+            }
+        }
+        .frame(width: size, height: size)
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .overlay {
+            RoundedRectangle(cornerRadius: 8)
+                .strokeBorder(Color(.separator).opacity(0.35), lineWidth: 0.5)
+        }
+        .accessibilityHidden(true)
     }
 }
 
