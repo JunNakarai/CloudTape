@@ -1,17 +1,25 @@
 # CloudTape Roadmap
 
+## Done
+
+- iCloud Driveフォルダ選択
+- 音声ファイル読み込み
+- メタデータ読み取り
+- ランダム再生開始
+- ミニプレイヤー
+- Now Playing
+- バックグラウンド再生
+
 ## Next
 
-- Read track metadata: title, artist, album, duration. Done.
-- Add elapsed time, remaining duration, and a seek slider. Done.
-- Improve iCloud Drive handling for files that are visible but not downloaded. Done.
-- Persist the selected folder and last playback position more reliably. Done.
-- Add artwork extraction and display. Done.
-- Add search plus artist/album grouping. Search done; grouping remains.
+- 実機での長時間利用検証
+- iCloud未ダウンロードファイルの安定化
+- UI微調整
+- READMEスクショ追加
 
 ## Later
 
-- Add queue editing and repeat modes.
-- Add playlist support.
-- Add a compact now-playing screen.
-- Add CarPlay polish if the app becomes a daily driver.
+- プレイリスト
+- CarPlay
+- オフラインキャッシュ
+- タグ編集

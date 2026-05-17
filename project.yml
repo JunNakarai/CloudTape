@@ -14,7 +14,7 @@ targets:
     sources:
       - path: CloudTape
     info:
-      path: CloudTape/Info.plist
+      path: CloudTape/SupportingFiles/Info.plist
       properties:
         CFBundleDisplayName: CloudTape
         UILaunchScreen: {}
@@ -23,6 +23,6 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: io.github.junnakarai.cloudtape
-        INFOPLIST_FILE: CloudTape/Info.plist
+        INFOPLIST_FILE: CloudTape/SupportingFiles/Info.plist
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         CODE_SIGN_STYLE: Automatic
-        DEVELOPMENT_TEAM: MU94BSN9Y3

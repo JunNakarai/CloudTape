@@ -9,18 +9,28 @@ final class AudioPlayer: ObservableObject {
     @Published private(set) var isPlaying = false
     @Published private(set) var currentTime: TimeInterval = 0
     @Published private(set) var duration: TimeInterval = 0
-    @Published var mode: PlaybackMode = .ordered
+    @Published private(set) var mode: PlaybackMode
 
     private var tracks: [Track] = []
     private var queue: [Track] = []
+    private var history: [Track] = []
     private var currentIndex = 0
     private var player: AVPlayer?
     private var endObserver: NSObjectProtocol?
     private var timeObserver: Any?
+    private let userDefaults: UserDefaults
+    private let shuffleEnabledKey = "shuffleEnabled"
     private let lastTrackPathKey = "lastTrackPath"
     private let lastPlaybackPositionKey = "lastPlaybackPosition"
 
-    init() {
+    init(userDefaults: UserDefaults = .standard) {
+        self.userDefaults = userDefaults
+        if let savedShuffle = userDefaults.object(forKey: shuffleEnabledKey) as? Bool {
+            mode = savedShuffle ? .shuffled : .ordered
+        } else {
+            mode = .shuffled
+            userDefaults.set(true, forKey: shuffleEnabledKey)
+        }
         setupRemoteCommands()
     }
 
@@ -44,19 +54,33 @@ final class AudioPlayer: ObservableObject {
 
     func play(track: Track, in allTracks: [Track]) {
         tracks = allTracks
+        history.removeAll()
         rebuildQueue(startingAt: track)
         playCurrent(autoPlay: true)
     }
 
+    @discardableResult
+    func playRandom(in allTracks: [Track]) -> Bool {
+        guard !allTracks.isEmpty else { return false }
+        tracks = allTracks
+        history.removeAll()
+        setShuffleEnabled(true)
+
+        guard let track = allTracks.randomElement() else { return false }
+        rebuildQueue(startingAt: track)
+        playCurrent(autoPlay: true)
+        return true
+    }
+
     func restoreLastPlayback(in allTracks: [Track]) {
         guard currentTrack == nil else { return }
-        guard let path = UserDefaults.standard.string(forKey: lastTrackPathKey) else { return }
+        guard let path = userDefaults.string(forKey: lastTrackPathKey) else { return }
         guard let track = allTracks.first(where: { $0.url.path == path }) else { return }
 
         tracks = allTracks
         rebuildQueue(startingAt: track)
         playCurrent(autoPlay: false)
-        seek(to: UserDefaults.standard.double(forKey: lastPlaybackPositionKey))
+        seek(to: userDefaults.double(forKey: lastPlaybackPositionKey))
     }
 
     func togglePlayPause() {
@@ -86,21 +110,39 @@ final class AudioPlayer: ObservableObject {
 
     func next() {
         guard !queue.isEmpty else { return }
-        currentIndex = min(currentIndex + 1, queue.count - 1)
+        guard currentIndex + 1 < queue.count else {
+            isPlaying = false
+            updateNowPlaying()
+            return
+        }
+        if let currentTrack {
+            history.append(currentTrack)
+        }
+        currentIndex += 1
         playCurrent(autoPlay: true)
     }
 
     func previous() {
         guard !queue.isEmpty else { return }
+        if let previousTrack = history.popLast(), let previousIndex = queue.firstIndex(of: previousTrack) {
+            currentIndex = previousIndex
+            playCurrent(autoPlay: true)
+            return
+        }
         currentIndex = max(currentIndex - 1, 0)
         playCurrent(autoPlay: true)
     }
 
     func toggleShuffle() {
-        mode = mode == .ordered ? .shuffled : .ordered
+        setShuffleEnabled(mode == .ordered)
         if let currentTrack {
             rebuildQueue(startingAt: currentTrack)
         }
+    }
+
+    private func setShuffleEnabled(_ isEnabled: Bool) {
+        mode = isEnabled ? .shuffled : .ordered
+        userDefaults.set(isEnabled, forKey: shuffleEnabledKey)
     }
 
     private func rebuildQueue(startingAt track: Track) {
@@ -163,6 +205,9 @@ final class AudioPlayer: ObservableObject {
             isPlaying = false
             return
         }
+        if let currentTrack {
+            history.append(currentTrack)
+        }
         currentIndex += 1
         playCurrent(autoPlay: true)
     }
@@ -218,8 +263,8 @@ final class AudioPlayer: ObservableObject {
 
     private func savePlaybackState() {
         guard let currentTrack else { return }
-        UserDefaults.standard.set(currentTrack.url.path, forKey: lastTrackPathKey)
-        UserDefaults.standard.set(currentTime, forKey: lastPlaybackPositionKey)
+        userDefaults.set(currentTrack.url.path, forKey: lastTrackPathKey)
+        userDefaults.set(currentTime, forKey: lastPlaybackPositionKey)
     }
 
     private func sanitizedTime(_ seconds: TimeInterval) -> TimeInterval {

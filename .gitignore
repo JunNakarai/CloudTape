@@ -1,15 +1,37 @@
+# macOS metadata
+.DS_Store
+
 # Xcode user state
 *.xcuserstate
 xcuserdata/
+*.xcuserdatad/
+CloudTape*.xcodeproj/project.xcworkspace/xcuserdata/
 
 # Build products
 Build/
+build/
 DerivedData/
+DerivedData*/
 *.xcresult
-CloudTape 2.xcodeproj/
+*.ipa
+*.dSYM
+*.dSYM.zip
 
 # Swift Package Manager
 .build/
 
-# macOS metadata
-.DS_Store
+# Logs and reports
+*.log
+logs/
+fastlane/report.xml
+
+# Local environment
+.env
+.env.*
+*.local
+
+# Generated duplicate Xcode projects from Finder/Xcode copies
+CloudTape 2.xcodeproj/
+CloudTape 3.xcodeproj/
+CloudTape 4.xcodeproj/
+CloudTape [0-9]*.xcodeproj/

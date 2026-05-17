@@ -1,0 +1,100 @@
+# CloudTape
+
+CloudTape is a personal iOS music player for loosely shuffling self-managed audio files stored in iCloud Drive or the Files app.
+
+It is built for private use, not App Store distribution at this stage.
+
+## Features
+
+- Choose an iCloud Drive or Files folder
+- Scan supported audio files
+- Read track metadata and artwork
+- Start random playback without selecting a track first
+- Background audio playback
+- Lock screen and Control Center transport controls
+- Floating mini player
+- Expanded Now Playing view
+
+## Tech Stack
+
+- SwiftUI
+- AVFoundation / AVPlayer
+- MediaPlayer
+- XcodeGen
+
+## Project Layout
+
+```text
+CloudTape/
+├── App/
+├── Assets.xcassets/
+├── Features/
+│   ├── Library/
+│   └── Player/
+├── Models/
+├── Services/
+├── SupportingFiles/
+└── Views/
+```
+
+## Setup
+
+Install XcodeGen:
+
+```sh
+brew install xcodegen
+```
+
+Generate the Xcode project:
+
+```sh
+xcodegen generate
+```
+
+Open the project:
+
+```sh
+open CloudTape.xcodeproj
+```
+
+## Build
+
+Simulator build:
+
+```sh
+./scripts/build-simulator.sh
+```
+
+The script uses `/private/tmp/cloudtape-derived` for DerivedData so build output stays outside iCloud Drive.
+
+## Installing on iPhone
+
+For physical device installs:
+
+- Sign in to Xcode with an Apple ID
+- Keep automatic signing enabled
+- Select your development team in Xcode for local device installs
+- Enable Developer Mode on the iPhone
+- Trust the Mac and keep the device unlocked during install
+
+Command line device builds can use:
+
+```sh
+xcodebuild \
+  -project CloudTape.xcodeproj \
+  -scheme CloudTape \
+  -destination 'generic/platform=iOS' \
+  -derivedDataPath /private/tmp/cloudtape-device-derived \
+  -allowProvisioningUpdates \
+  build
+```
+
+## iCloud Drive Notes
+
+CloudTape stores access to the selected folder with a security-scoped bookmark. If access fails after moving folders or changing iCloud state, choose the folder again.
+
+iCloud Drive files that are not downloaded locally may need time to become playable. CloudTape requests downloads when scanning, but device-side behavior can vary with network and iCloud state.
+
+## Distribution
+
+CloudTape is currently intended for personal sideloaded use. App Store and TestFlight distribution are not planned for now.
