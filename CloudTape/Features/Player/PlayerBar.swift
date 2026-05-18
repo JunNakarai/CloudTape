@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct PlayerBar: View {
     @EnvironmentObject private var player: AudioPlayer
@@ -6,10 +7,13 @@ struct PlayerBar: View {
     let expansionProgress: CGFloat
     let maximumExpandedHeight: CGFloat
     let toggleExpanded: () -> Void
+    @State private var collapsedSwipeOffset: CGFloat = 0
 
     var body: some View {
         VStack(spacing: isExpanded ? 20 : 10) {
-            dragHandle
+            if isExpanded {
+                dragHandle
+            }
 
             if isExpanded {
                 expandedContent
@@ -19,7 +23,7 @@ struct PlayerBar: View {
         }
         .tint(.white)
         .padding(.horizontal, 16)
-        .padding(.top, 9)
+        .padding(.top, isExpanded ? 9 : 10)
         .padding(.bottom, isExpanded ? 22 : 12)
         .frame(maxWidth: .infinity)
         .frame(height: isExpanded ? min(maximumExpandedHeight, 620) : nil)
@@ -86,21 +90,48 @@ struct PlayerBar: View {
     }
 
     private var collapsedContent: some View {
-        VStack(spacing: 10) {
-            progressSlider
-
-            HStack(spacing: 14) {
-                if let currentTrack = player.currentTrack {
-                    ArtworkThumbnail(track: currentTrack, isCurrent: player.isPlaying, size: 44)
-                }
-
-                trackText
-
-                Spacer()
-
-                transportControls(playButtonSize: 36, spacing: 14)
+        HStack(spacing: 12) {
+            if let currentTrack = player.currentTrack {
+                ArtworkThumbnail(track: currentTrack, isCurrent: player.isPlaying, size: 42)
             }
+
+            VStack(alignment: .leading, spacing: 7) {
+                Text(player.currentTrack?.title ?? "未再生")
+                    .font(.headline)
+                    .lineLimit(1)
+                    .foregroundStyle(.white)
+
+                HStack(spacing: 7) {
+                    Text(formatTime(player.currentTime))
+                        .frame(width: 34, alignment: .leading)
+
+                    collapsedProgressBar
+
+                    Text(formatTime(player.duration))
+                        .frame(width: 34, alignment: .trailing)
+                }
+                .font(.caption2)
+                .monospacedDigit()
+                .foregroundStyle(.white.opacity(0.76))
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+
+            Button {
+                player.togglePlayPause()
+            } label: {
+                Image(systemName: player.isPlaying ? "pause.circle.fill" : "play.circle.fill")
+                    .font(.system(size: 40))
+                    .symbolRenderingMode(.hierarchical)
+            }
+            .buttonStyle(.plain)
+            .disabled(player.currentTrack == nil)
+            .accessibilityLabel(player.isPlaying ? "一時停止" : "再生")
         }
+        .contentShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .offset(x: collapsedSwipeOffset)
+        .gesture(collapsedSwipeGesture)
+        .onTapGesture(perform: toggleExpanded)
+        .animation(.interactiveSpring(response: 0.24, dampingFraction: 0.82), value: collapsedSwipeOffset)
     }
 
     private var expandedContent: some View {
@@ -159,17 +190,59 @@ struct PlayerBar: View {
         }
     }
 
-    private var trackText: some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text(player.currentTrack?.title ?? "未再生")
-                .font(.headline)
-                .lineLimit(1)
-                .foregroundStyle(.white)
-            Text(player.currentTrack?.subtitle ?? "曲を選択してください")
-                .font(.caption)
-                .foregroundStyle(.white.opacity(0.68))
-                .lineLimit(1)
+    private var collapsedProgressBar: some View {
+        GeometryReader { proxy in
+            let progress = collapsedProgress
+            Capsule()
+                .fill(Color.white.opacity(0.22))
+                .overlay(alignment: .leading) {
+                    Capsule()
+                        .fill(Color.white.opacity(0.86))
+                        .frame(width: proxy.size.width * progress)
+                }
         }
+        .frame(height: 4)
+        .accessibilityHidden(true)
+    }
+
+    private var collapsedProgress: CGFloat {
+        guard player.currentTrack != nil, sliderUpperBound > 0 else { return 0 }
+        return min(max(player.currentTime / sliderUpperBound, 0), 1)
+    }
+
+    private var collapsedSwipeGesture: some Gesture {
+        DragGesture(minimumDistance: 18)
+            .onChanged { value in
+                guard player.currentTrack != nil else { return }
+                guard isMostlyHorizontal(value) else { return }
+                collapsedSwipeOffset = max(min(value.translation.width * 0.18, 18), -18)
+            }
+            .onEnded { value in
+                defer {
+                    withAnimation(.spring(response: 0.26, dampingFraction: 0.84)) {
+                        collapsedSwipeOffset = 0
+                    }
+                }
+                guard player.currentTrack != nil else { return }
+                guard isMostlyHorizontal(value) else { return }
+
+                if value.translation.width <= -60 {
+                    player.next()
+                    playSwipeFeedback()
+                } else if value.translation.width >= 60 {
+                    player.previous()
+                    playSwipeFeedback()
+                }
+            }
+    }
+
+    private func isMostlyHorizontal(_ value: DragGesture.Value) -> Bool {
+        abs(value.translation.width) > 60
+            && abs(value.translation.width) > abs(value.translation.height) * 1.35
+    }
+
+    private func playSwipeFeedback() {
+        UIImpactFeedbackGenerator(style: .light).impactOccurred()
     }
 
     private var shuffleButton: some View {
