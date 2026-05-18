@@ -5,15 +5,19 @@ import UniformTypeIdentifiers
 final class MusicLibrary: ObservableObject {
     @Published private(set) var folderURL: URL?
     @Published private(set) var tracks: [Track] = []
+    @Published private(set) var state: LibraryState = .noFolder
+    @Published private(set) var pendingDownloadCount = 0
     @Published var errorMessage: String?
 
     private let bookmarkKey = "selectedMusicFolderBookmark"
     private var accessedFolderURL: URL?
+    private var scanTask: Task<Void, Never>?
     private let supportedExtensions: Set<String> = [
         "mp3", "m4a", "aac", "alac", "flac", "wav", "aiff", "aif", "m4b"
     ]
 
     deinit {
+        scanTask?.cancel()
         accessedFolderURL?.stopAccessingSecurityScopedResource()
     }
 
@@ -33,50 +37,78 @@ final class MusicLibrary: ObservableObject {
             }
             loadFolder(url)
         } catch {
-            errorMessage = "前回のフォルダを開けませんでした。もう一度選択してください。"
+            updateError("前回のフォルダを開けませんでした。もう一度選択してください。")
         }
     }
 
     func loadFolder(_ url: URL) {
         let didAccess = url.startAccessingSecurityScopedResource()
+        scanTask?.cancel()
+        state = .scanning
+        errorMessage = nil
+        folderURL = url
+        tracks = []
+        pendingDownloadCount = 0
 
-        do {
-            if didAccess {
-                accessedFolderURL?.stopAccessingSecurityScopedResource()
-                accessedFolderURL = url
+        if didAccess {
+            accessedFolderURL?.stopAccessingSecurityScopedResource()
+            accessedFolderURL = url
+        }
+
+        saveBookmark(for: url)
+
+        scanTask = Task {
+            do {
+                let extensions = supportedExtensions
+                let scan = try await Task.detached(priority: .userInitiated) {
+                    try Self.audioFiles(in: url, supportedExtensions: extensions)
+                }.value
+                guard !Task.isCancelled, folderURL == url else { return }
+
+                tracks = scan.urls.map { Track.from(url: $0, root: url) }
+                pendingDownloadCount = scan.pendingDownloadCount
+                state = resolvedState(trackCount: tracks.count, pendingCount: scan.pendingDownloadCount)
+                enrichMetadata()
+            } catch is CancellationError {
+                return
+            } catch {
+                guard !Task.isCancelled, folderURL == url else { return }
+                updateError("フォルダを読み込めませんでした: \(error.localizedDescription)")
             }
-            saveBookmark(for: url)
-            let urls = try audioFiles(in: url)
-            folderURL = url
-            tracks = urls.map { Track.from(url: $0, root: url) }
-            errorMessage = tracks.isEmpty ? "このフォルダに対応音声ファイルが見つかりませんでした。" : nil
-            enrichMetadata()
-        } catch {
-            errorMessage = "フォルダを読み込めませんでした: \(error.localizedDescription)"
         }
     }
 
     private func enrichMetadata() {
         let currentTracks = tracks
+        let currentFolderURL = folderURL
         Task {
-            var enriched: [Track] = []
-            for track in currentTracks {
-                let metadata = await Track.metadata(for: track.url)
-                enriched.append(track.withMetadata(
-                    title: metadata.title,
-                    artist: metadata.artist,
-                    album: metadata.album,
-                    duration: metadata.duration,
-                    artworkData: metadata.artworkData
-                ))
-            }
+            let enrichedTracks = await Self.enrichedTracks(for: currentTracks)
 
-            guard folderURL != nil else { return }
-            tracks = enriched
+            guard folderURL == currentFolderURL else { return }
+            tracks = enrichedTracks
         }
     }
 
-    private func audioFiles(in folder: URL) throws -> [URL] {
+    nonisolated private static func enrichedTracks(for tracks: [Track]) async -> [Track] {
+        var enriched: [Track] = []
+        for track in tracks {
+            let metadata = await Track.metadata(for: track.url)
+            enriched.append(track.withMetadata(
+                title: metadata.title,
+                artist: metadata.artist,
+                album: metadata.album,
+                duration: metadata.duration,
+                artworkData: metadata.artworkData
+            ))
+        }
+        return enriched
+    }
+
+    nonisolated private static func audioFiles(
+        in folder: URL,
+        supportedExtensions: Set<String>
+    ) throws -> (urls: [URL], pendingDownloadCount: Int) {
+        try Task.checkCancellation()
         guard let enumerator = FileManager.default.enumerator(
             at: folder,
             includingPropertiesForKeys: [
@@ -87,21 +119,29 @@ final class MusicLibrary: ObservableObject {
             ],
             options: [.skipsHiddenFiles]
         ) else {
-            return []
+            return ([], 0)
         }
 
         var urls: [URL] = []
+        var pendingDownloadCount = 0
         for case let fileURL as URL in enumerator {
-            let resource = try fileURL.resourceValues(forKeys: [.isRegularFileKey])
+            try Task.checkCancellation()
+            let resource = try fileURL.resourceValues(forKeys: [
+                .isRegularFileKey,
+                .isUbiquitousItemKey,
+                .ubiquitousItemDownloadingStatusKey
+            ])
             guard resource.isRegularFile == true else { continue }
             guard supportedExtensions.contains(fileURL.pathExtension.lowercased()) else { continue }
-            requestDownloadIfNeeded(fileURL)
+            if requestDownloadIfNeeded(fileURL, resourceValues: resource) {
+                pendingDownloadCount += 1
+            }
             urls.append(fileURL)
         }
 
-        return urls.sorted {
+        return (urls.sorted {
             $0.lastPathComponent.localizedStandardCompare($1.lastPathComponent) == .orderedAscending
-        }
+        }, pendingDownloadCount)
     }
 
     private func saveBookmark(for url: URL) {
@@ -113,21 +153,43 @@ final class MusicLibrary: ObservableObject {
             )
             UserDefaults.standard.set(data, forKey: bookmarkKey)
         } catch {
-            errorMessage = "フォルダ権限を保存できませんでした。"
+            updateError("フォルダ権限を保存できませんでした。")
         }
     }
 
-    private func requestDownloadIfNeeded(_ url: URL) {
+    nonisolated private static func requestDownloadIfNeeded(_ url: URL, resourceValues values: URLResourceValues) -> Bool {
         do {
-            let values = try url.resourceValues(forKeys: [
-                .isUbiquitousItemKey,
-                .ubiquitousItemDownloadingStatusKey
-            ])
-            guard values.isUbiquitousItem == true else { return }
-            guard values.ubiquitousItemDownloadingStatus != .current else { return }
+            guard values.isUbiquitousItem == true else { return false }
+            guard values.ubiquitousItemDownloadingStatus != .current else { return false }
             try FileManager.default.startDownloadingUbiquitousItem(at: url)
+            return true
         } catch {
             print("iCloud download request failed: \(error)")
+            return false
         }
     }
+
+    private func resolvedState(trackCount: Int, pendingCount: Int) -> LibraryState {
+        if trackCount == 0 {
+            return .emptyFolder
+        }
+        if pendingCount > 0 {
+            return .syncing(pendingCount)
+        }
+        return .ready
+    }
+
+    private func updateError(_ message: String) {
+        errorMessage = message
+        state = .error(message)
+    }
+}
+
+enum LibraryState: Equatable {
+    case noFolder
+    case scanning
+    case ready
+    case emptyFolder
+    case syncing(Int)
+    case error(String)
 }

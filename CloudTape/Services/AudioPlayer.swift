@@ -10,6 +10,7 @@ final class AudioPlayer: ObservableObject {
     @Published private(set) var currentTime: TimeInterval = 0
     @Published private(set) var duration: TimeInterval = 0
     @Published private(set) var mode: PlaybackMode
+    @Published var errorMessage: String?
 
     private var tracks: [Track] = []
     private var queue: [Track] = []
@@ -17,6 +18,7 @@ final class AudioPlayer: ObservableObject {
     private var currentIndex = 0
     private var player: AVPlayer?
     private var endObserver: NSObjectProtocol?
+    private var failedObserver: NSObjectProtocol?
     private var timeObserver: Any?
     private let userDefaults: UserDefaults
     private let shuffleEnabledKey = "shuffleEnabled"
@@ -38,17 +40,23 @@ final class AudioPlayer: ObservableObject {
         if let endObserver {
             NotificationCenter.default.removeObserver(endObserver)
         }
+        if let failedObserver {
+            NotificationCenter.default.removeObserver(failedObserver)
+        }
         if let timeObserver {
             player?.removeTimeObserver(timeObserver)
         }
     }
 
-    func configureSession() {
+    @discardableResult
+    func configureSession() -> Bool {
         do {
             try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
             try AVAudioSession.sharedInstance().setActive(true)
+            return true
         } catch {
-            print("Audio session failed: \(error)")
+            errorMessage = "バックグラウンド再生の準備ができませんでした。音量や再生設定を確認して、もう一度お試しください。"
+            return false
         }
     }
 
@@ -84,15 +92,12 @@ final class AudioPlayer: ObservableObject {
     }
 
     func togglePlayPause() {
-        guard let player else { return }
+        guard player != nil else { return }
         if isPlaying {
-            player.pause()
-            isPlaying = false
+            pause()
         } else {
-            player.play()
-            isPlaying = true
+            play()
         }
-        updateNowPlaying()
     }
 
     func seek(to seconds: TimeInterval) {
@@ -158,27 +163,42 @@ final class AudioPlayer: ObservableObject {
 
     private func playCurrent(autoPlay: Bool) {
         guard queue.indices.contains(currentIndex) else { return }
-        currentTrack = queue[currentIndex]
+        let track = queue[currentIndex]
+        guard prepareForPlayback(track) else { return }
+
+        currentTrack = track
         savePlaybackState()
 
         if let endObserver {
             NotificationCenter.default.removeObserver(endObserver)
+        }
+        if let failedObserver {
+            NotificationCenter.default.removeObserver(failedObserver)
         }
         if let timeObserver {
             player?.removeTimeObserver(timeObserver)
             self.timeObserver = nil
         }
 
-        let item = AVPlayerItem(url: queue[currentIndex].url)
+        let item = AVPlayerItem(url: track.url)
         player = AVPlayer(playerItem: item)
         currentTime = 0
-        duration = sanitizedDuration(queue[currentIndex].duration)
+        duration = sanitizedDuration(track.duration)
         endObserver = NotificationCenter.default.addObserver(
             forName: .AVPlayerItemDidPlayToEndTime,
             object: item,
             queue: .main
         ) { [weak self] _ in
             Task { @MainActor in self?.nextAfterFinish() }
+        }
+        failedObserver = NotificationCenter.default.addObserver(
+            forName: .AVPlayerItemFailedToPlayToEndTime,
+            object: item,
+            queue: .main
+        ) { [weak self] notification in
+            Task { @MainActor in
+                self?.handlePlaybackFailure(notification: notification)
+            }
         }
         timeObserver = player?.addPeriodicTimeObserver(
             forInterval: CMTime(seconds: 0.5, preferredTimescale: 600),
@@ -194,9 +214,24 @@ final class AudioPlayer: ObservableObject {
         }
 
         if autoPlay {
-            player?.play()
+            play()
+        } else {
+            isPlaying = false
+            updateNowPlaying()
         }
-        isPlaying = autoPlay
+    }
+
+    private func play() {
+        guard let player else { return }
+        guard configureSession() else { return }
+        player.play()
+        isPlaying = true
+        updateNowPlaying()
+    }
+
+    private func pause() {
+        player?.pause()
+        isPlaying = false
         updateNowPlaying()
     }
 
@@ -215,11 +250,11 @@ final class AudioPlayer: ObservableObject {
     private func setupRemoteCommands() {
         let center = MPRemoteCommandCenter.shared()
         center.playCommand.addTarget { [weak self] _ in
-            Task { @MainActor in self?.togglePlayPause() }
+            Task { @MainActor in self?.play() }
             return .success
         }
         center.pauseCommand.addTarget { [weak self] _ in
-            Task { @MainActor in self?.togglePlayPause() }
+            Task { @MainActor in self?.pause() }
             return .success
         }
         center.nextTrackCommand.addTarget { [weak self] _ in
@@ -237,6 +272,47 @@ final class AudioPlayer: ObservableObject {
             Task { @MainActor in self?.seek(to: event.positionTime) }
             return .success
         }
+    }
+
+    private func prepareForPlayback(_ track: Track) -> Bool {
+        guard FileManager.default.fileExists(atPath: track.url.path) else {
+            failPlayback("この曲が見つかりません。iCloud Driveの同期状態を確認するか、フォルダを選び直してください。")
+            return false
+        }
+
+        do {
+            let values = try track.url.resourceValues(forKeys: [
+                .isUbiquitousItemKey,
+                .ubiquitousItemDownloadingStatusKey
+            ])
+            if values.isUbiquitousItem == true,
+               values.ubiquitousItemDownloadingStatus != .current {
+                try? FileManager.default.startDownloadingUbiquitousItem(at: track.url)
+                failPlayback("この曲はまだiCloudからダウンロード中です。少し待ってからもう一度再生してください。")
+                return false
+            }
+        } catch {
+            failPlayback("この曲を開けませんでした。ファイルの場所やiCloud Driveの状態を確認してください。")
+            return false
+        }
+
+        return true
+    }
+
+    private func handlePlaybackFailure(notification: Notification) {
+        pause()
+        let error = notification.userInfo?[AVPlayerItemFailedToPlayToEndTimeErrorKey] as? Error
+        if let error {
+            failPlayback("再生を続けられませんでした: \(error.localizedDescription)")
+        } else {
+            failPlayback("再生を続けられませんでした。別の曲を選んでください。")
+        }
+    }
+
+    private func failPlayback(_ message: String) {
+        errorMessage = message
+        isPlaying = false
+        updateNowPlaying()
     }
 
     private func updateNowPlaying() {

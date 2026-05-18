@@ -33,7 +33,8 @@ struct Track: Identifiable, Equatable {
         duration: TimeInterval?,
         artworkData: Data?
     ) -> Track {
-        let resolvedTitle = title?.isEmpty == false ? title! : self.title
+        let trimmedTitle = title?.trimmingCharacters(in: .whitespacesAndNewlines)
+        let resolvedTitle = trimmedTitle?.isEmpty == false ? trimmedTitle ?? self.title : self.title
         let details = [artist, album]
             .compactMap { value in
                 guard let value, !value.isEmpty else { return nil }

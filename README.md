@@ -1,8 +1,8 @@
 # CloudTape
 
-CloudTape is a personal iOS music player for loosely shuffling self-managed audio files stored in iCloud Drive or the Files app.
+CloudTape is a minimal iOS music player for shuffling owned audio files stored in iCloud Drive or the Files app.
 
-It is built for private use, not App Store distribution at this stage.
+It is built as a quiet personal music space: no ads, no tracking, no accounts, and no recommendation algorithms.
 
 ## Features
 
@@ -95,6 +95,13 @@ CloudTape stores access to the selected folder with a security-scoped bookmark. 
 
 iCloud Drive files that are not downloaded locally may need time to become playable. CloudTape requests downloads when scanning, but device-side behavior can vary with network and iCloud state.
 
-## Distribution
+## Release Preparation
 
-CloudTape is currently intended for personal sideloaded use. App Store and TestFlight distribution are not planned for now.
+CloudTape is being prepared for v1.0 TestFlight and App Store release.
+
+Release materials live in:
+
+- `docs/privacy-policy.md`
+- `docs/app-store-metadata.md`
+- `docs/release-checklist.md`
+- `docs/screenshot-plan.md`

@@ -113,24 +113,33 @@ struct LibraryView: View {
                 Text(library.errorMessage ?? "")
             }
             .alert("再生できません", isPresented: Binding(
-                get: { playbackMessage != nil },
-                set: { if !$0 { playbackMessage = nil } }
+                get: { playbackMessage != nil || player.errorMessage != nil },
+                set: {
+                    if !$0 {
+                        playbackMessage = nil
+                        player.errorMessage = nil
+                    }
+                }
             )) {
                 Button("OK", role: .cancel) {}
             } message: {
-                Text(playbackMessage ?? "")
+                Text(playbackMessage ?? player.errorMessage ?? "")
             }
         }
     }
 
     @ViewBuilder
     private var libraryContent: some View {
-        if library.tracks.isEmpty {
-            EmptyLibraryView {
+        if library.tracks.isEmpty || library.state == .scanning {
+            EmptyLibraryView(state: library.state) {
                 isImportingFolder = true
             }
         } else {
             List {
+                if case .syncing(let count) = library.state {
+                    syncingRow(count: count)
+                }
+
                 ForEach(library.tracks) { track in
                     Button {
                         player.play(track: track, in: library.tracks)
@@ -142,6 +151,19 @@ struct LibraryView: View {
             .listStyle(.plain)
             .safeAreaPadding(.bottom, 132)
         }
+    }
+
+    private func syncingRow(count: Int) -> some View {
+        Label {
+            Text("\(count)曲をiCloudから同期中")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+        } icon: {
+            Image(systemName: "icloud.and.arrow.down")
+                .foregroundStyle(.blue)
+        }
+        .padding(.vertical, 8)
+        .listRowSeparator(.hidden)
     }
 
     private var playerExpansionProgress: CGFloat {
