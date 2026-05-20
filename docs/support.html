@@ -8,7 +8,7 @@
   <title>Support - CloudTape</title>
   <link rel="icon" href="assets/app-icon.png">
   <link rel="apple-touch-icon" href="assets/app-icon.png">
-  <link rel="stylesheet" href="styles.css?v=20260520">
+  <link rel="stylesheet" href="styles.css?v=20260520-lang">
 </head>
 <body>
   <header class="site-header">
@@ -17,33 +17,37 @@
       <span>CloudTape</span>
     </a>
     <nav class="nav-links" aria-label="Primary navigation">
-      <a href="privacy-policy.html">Privacy</a>
-      <a href="support.html" aria-current="page">Support</a>
+      <a href="privacy-policy.html" data-i18n="nav.privacy">Privacy</a>
+      <a href="support.html" aria-current="page" data-i18n="nav.support">Support</a>
       <a href="https://github.com/JunNakarai/CloudTape">GitHub</a>
     </nav>
+    <div class="language-switch" aria-label="Language">
+      <button type="button" data-language-option="en">EN</button>
+      <button type="button" data-language-option="ja">日本語</button>
+    </div>
   </header>
 
   <main class="page">
     <p class="eyebrow">CloudTape</p>
-    <h1>Support</h1>
-    <p class="intro">
+    <h1 data-i18n="support.title">Support</h1>
+    <p class="intro" data-i18n="support.intro">
       CloudTape is a lightweight iOS player for owned music files stored in
       iCloud Drive or the Files app.
     </p>
 
     <section>
-      <h2>Common Checks</h2>
+      <h2 data-i18n="support.checksTitle">Common Checks</h2>
       <ul class="plain-list">
-        <li>Confirm the selected folder is available in iCloud Drive or Files.</li>
-        <li>Wait for iCloud files to download locally before playback.</li>
-        <li>If folder access stops working, choose the folder again in the app.</li>
-        <li>Make sure the file format is supported by iOS playback.</li>
+        <li data-i18n="support.check1">Confirm the selected folder is available in iCloud Drive or Files.</li>
+        <li data-i18n="support.check2">Wait for iCloud files to download locally before playback.</li>
+        <li data-i18n="support.check3">If folder access stops working, choose the folder again in the app.</li>
+        <li data-i18n="support.check4">Make sure the file format is supported by iOS playback.</li>
       </ul>
     </section>
 
     <section>
-      <h2>Contact</h2>
-      <p>
+      <h2 data-i18n="support.contactTitle">Contact</h2>
+      <p data-i18n="support.contactBody">
         For support, open an issue in the GitHub repository or contact the
         developer through the App Store support channel after release.
       </p>
@@ -56,7 +60,8 @@
 
   <footer class="site-footer">
     <span>CloudTape</span>
-    <a href="index.html">Home</a>
+    <a href="index.html" data-i18n="nav.home">Home</a>
   </footer>
+  <script src="i18n.js?v=20260520-lang"></script>
 </body>
 </html>

@@ -8,7 +8,7 @@
   <title>CloudTape - iCloud Drive Music Player</title>
   <link rel="icon" href="assets/app-icon.png">
   <link rel="apple-touch-icon" href="assets/app-icon.png">
-  <link rel="stylesheet" href="styles.css?v=20260520">
+  <link rel="stylesheet" href="styles.css?v=20260520-lang">
 </head>
 <body>
   <header class="site-header">
@@ -17,20 +17,24 @@
       <span>CloudTape</span>
     </a>
     <nav class="nav-links" aria-label="Primary navigation">
-      <a href="privacy-policy.html">Privacy</a>
-      <a href="support.html">Support</a>
+      <a href="privacy-policy.html" data-i18n="nav.privacy">Privacy</a>
+      <a href="support.html" data-i18n="nav.support">Support</a>
       <a href="https://github.com/JunNakarai/CloudTape">GitHub</a>
     </nav>
+    <div class="language-switch" aria-label="Language">
+      <button type="button" data-language-option="en">EN</button>
+      <button type="button" data-language-option="ja">日本語</button>
+    </div>
   </header>
 
   <main>
     <section class="hero">
       <div class="hero-copy">
         <img class="app-icon" src="assets/app-icon.png" alt="CloudTape app icon">
-        <p class="eyebrow">iCloud Drive music player</p>
+        <p class="eyebrow" data-i18n="home.eyebrow">iCloud Drive music player</p>
         <h1>CloudTape</h1>
-        <p class="tagline">A simple iOS player for the music files you already own.</p>
-        <p class="intro">
+        <p class="tagline" data-i18n="home.tagline">A simple iOS player for the music files you already own.</p>
+        <p class="intro" data-i18n="home.intro">
           CloudTape plays audio from iCloud Drive and the Files app with a native,
           fast, and private iOS experience. It is made for personal music libraries,
           not subscriptions, feeds, or recommendation systems.
@@ -48,29 +52,29 @@
 
     <section class="section">
       <div class="section-heading">
-        <p class="eyebrow">Features</p>
-        <h2>Built for a personal library.</h2>
+        <p class="eyebrow" data-i18n="home.featuresEyebrow">Features</p>
+        <h2 data-i18n="home.featuresTitle">Built for a personal library.</h2>
       </div>
       <div class="feature-grid">
         <article class="feature-card">
-          <h3>iCloud Drive first</h3>
-          <p>Choose a folder from iCloud Drive or Files and keep your music where you already manage it.</p>
+          <h3 data-i18n="home.feature1Title">iCloud Drive first</h3>
+          <p data-i18n="home.feature1Body">Choose a folder from iCloud Drive or Files and keep your music where you already manage it.</p>
         </article>
         <article class="feature-card">
-          <h3>Native playback</h3>
-          <p>Uses iOS media controls, background audio, lock screen controls, and a focused SwiftUI interface.</p>
+          <h3 data-i18n="home.feature2Title">Native playback</h3>
+          <p data-i18n="home.feature2Body">Uses iOS media controls, background audio, lock screen controls, and a focused SwiftUI interface.</p>
         </article>
         <article class="feature-card">
-          <h3>Fast and quiet</h3>
-          <p>No accounts, no analytics, no ads, and no heavy web stack. Just your files and playback controls.</p>
+          <h3 data-i18n="home.feature3Title">Fast and quiet</h3>
+          <p data-i18n="home.feature3Body">No accounts, no analytics, no ads, and no heavy web stack. Just your files and playback controls.</p>
         </article>
       </div>
     </section>
 
     <section class="section screenshots">
       <div class="section-heading">
-        <p class="eyebrow">Screenshots</p>
-        <h2>Replace these when App Store screenshots are ready.</h2>
+        <p class="eyebrow" data-i18n="home.screenshotsEyebrow">Screenshots</p>
+        <h2 data-i18n="home.screenshotsTitle">Real screenshots from the demo library.</h2>
       </div>
       <div class="screenshot-grid">
         <img src="assets/screenshots/cloudtape-home.png" alt="CloudTape library with mini player">
@@ -80,18 +84,19 @@
     </section>
 
     <section class="section links-panel">
-      <h2>Links</h2>
+      <h2 data-i18n="home.linksTitle">Links</h2>
       <div class="link-list">
-        <a href="https://github.com/JunNakarai/CloudTape">GitHub repository</a>
-        <a href="privacy-policy.html">Privacy Policy</a>
-        <a href="support.html">Support</a>
+        <a href="https://github.com/JunNakarai/CloudTape" data-i18n="home.githubLink">GitHub repository</a>
+        <a href="privacy-policy.html" data-i18n="nav.privacyPolicy">Privacy Policy</a>
+        <a href="support.html" data-i18n="nav.support">Support</a>
       </div>
     </section>
   </main>
 
   <footer class="site-footer">
     <span>CloudTape</span>
-    <span>Made for owned music libraries.</span>
+    <span data-i18n="footer.tagline">Made for owned music libraries.</span>
   </footer>
+  <script src="i18n.js?v=20260520-lang"></script>
 </body>
 </html>

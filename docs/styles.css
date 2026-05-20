@@ -77,7 +77,8 @@ img {
 
 .brand,
 .nav-links,
-.link-list {
+.link-list,
+.language-switch {
   display: flex;
   align-items: center;
 }
@@ -101,6 +102,34 @@ img {
 
 .nav-links [aria-current="page"] {
   color: var(--text);
+}
+
+.language-switch {
+  gap: 2px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 3px;
+  background: var(--panel);
+  backdrop-filter: blur(20px);
+}
+
+.language-switch button {
+  min-width: 44px;
+  min-height: 30px;
+  border: 0;
+  border-radius: 999px;
+  padding: 0 10px;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.language-switch button[aria-pressed="true"] {
+  background: var(--button);
+  color: var(--button-text);
 }
 
 main {
@@ -344,8 +373,18 @@ h3 {
 
   .nav-links {
     width: 100%;
-    justify-content: space-between;
+    justify-content: flex-start;
+    flex-wrap: wrap;
     gap: 12px;
+  }
+
+  .language-switch {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .language-switch button {
+    flex: 1;
   }
 
   .app-icon {
