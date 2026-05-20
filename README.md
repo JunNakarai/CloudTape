@@ -105,3 +105,31 @@ Release materials live in:
 - `docs/app-store-metadata.md`
 - `docs/release-checklist.md`
 - `docs/screenshot-plan.md`
+
+## GitHub Pages Site
+
+The public CloudTape introduction site is a static HTML/CSS site in `docs/`.
+It has no build step and no external dependencies.
+
+Pages files:
+
+- `docs/index.html`
+- `docs/privacy-policy.html`
+- `docs/support.html`
+- `docs/styles.css`
+- `docs/assets/`
+- `docs/.nojekyll`
+
+To enable GitHub Pages:
+
+1. Open the repository on GitHub.
+2. Go to Settings > Pages.
+3. Set Source to "Deploy from a branch".
+4. Select the `main` branch and the `/docs` folder.
+5. Save the settings.
+
+After GitHub Pages finishes publishing, the site will be available at:
+
+```text
+https://junnakarai.github.io/CloudTape/
+```

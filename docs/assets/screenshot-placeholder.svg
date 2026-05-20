@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="390" height="844" viewBox="0 0 390 844" role="img" aria-labelledby="title desc">
+  <title id="title">CloudTape screenshot placeholder</title>
+  <desc id="desc">A simple placeholder for future CloudTape iPhone screenshots.</desc>
+  <defs>
+    <linearGradient id="background" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#e8e8ed"/>
+    </linearGradient>
+    <linearGradient id="screenDark" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#2c2c2e"/>
+      <stop offset="1" stop-color="#111113"/>
+    </linearGradient>
+  </defs>
+  <rect width="390" height="844" rx="42" fill="url(#background)"/>
+  <rect x="28" y="26" width="334" height="792" rx="34" fill="url(#screenDark)"/>
+  <rect x="86" y="46" width="218" height="26" rx="13" fill="#050505"/>
+  <text x="54" y="130" fill="#f5f5f7" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="18" font-weight="650">CloudTape</text>
+  <text x="54" y="169" fill="#f5f5f7" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="34" font-weight="700">Your Library</text>
+  <rect x="54" y="214" width="282" height="282" rx="30" fill="#f5f5f7" opacity="0.95"/>
+  <circle cx="195" cy="355" r="62" fill="#1d1d1f"/>
+  <path d="M180 322v66l52-33z" fill="#f5f5f7"/>
+  <rect x="54" y="542" width="236" height="18" rx="9" fill="#f5f5f7" opacity="0.92"/>
+  <rect x="54" y="578" width="176" height="14" rx="7" fill="#a1a1a6"/>
+  <rect x="54" y="658" width="282" height="64" rx="20" fill="#ffffff" opacity="0.12"/>
+  <rect x="78" y="682" width="152" height="14" rx="7" fill="#f5f5f7" opacity="0.85"/>
+  <circle cx="296" cy="690" r="18" fill="#f5f5f7" opacity="0.9"/>
+</svg>
