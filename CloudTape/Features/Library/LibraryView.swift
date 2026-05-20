@@ -9,6 +9,9 @@ struct LibraryView: View {
     @State private var isPlayerExpanded = false
     @State private var playerDragTranslation: CGFloat = 0
     @State private var playbackMessage: String?
+#if DEBUG
+    @State private var didStartDemoPlayback = false
+#endif
 
     var body: some View {
         NavigationStack {
@@ -44,6 +47,9 @@ struct LibraryView: View {
             .navigationTitle("CloudTape")
             .onChange(of: library.tracks) { _, tracks in
                 player.restoreLastPlayback(in: tracks)
+#if DEBUG
+                startDemoPlaybackIfNeeded(from: tracks)
+#endif
             }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -238,4 +244,17 @@ struct LibraryView: View {
         }
         return true
     }
+
+#if DEBUG
+    private func startDemoPlaybackIfNeeded(from tracks: [Track]) {
+        guard DemoLaunchOptions.current.autoplay else { return }
+        guard !didStartDemoPlayback, !tracks.isEmpty else { return }
+        guard tracks.contains(where: { $0.artworkData != nil }) else { return }
+
+        didStartDemoPlayback = true
+        if startRandomPlayback(from: tracks), DemoLaunchOptions.current.expandPlayer {
+            isPlayerExpanded = true
+        }
+    }
+#endif
 }
