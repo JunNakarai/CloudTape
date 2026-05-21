@@ -140,9 +140,13 @@ struct LibraryView: View {
     @ViewBuilder
     private var libraryContent: some View {
         if library.tracks.isEmpty || library.state == .scanning {
-            EmptyLibraryView(state: library.state) {
-                isImportingFolder = true
-            }
+            EmptyLibraryView(
+                state: library.state,
+                chooseFolder: {
+                    isImportingFolder = true
+                },
+                trySampleAudio: playSampleAudio
+            )
         } else {
             List {
                 if case .syncing(let count) = library.state {
@@ -254,6 +258,25 @@ struct LibraryView: View {
             return false
         }
         return true
+    }
+
+    private func playSampleAudio() {
+        guard let url = Bundle.main.url(forResource: "CloudTape-Demo-Audio", withExtension: "m4a") else {
+            playbackMessage = "サンプル音源を読み込めませんでした。"
+            return
+        }
+
+        let track = Track(
+            id: url,
+            url: url,
+            title: "CloudTape Demo Audio",
+            subtitle: "App Review Demo",
+            artist: "CloudTape",
+            album: "App Review Demo",
+            duration: 10,
+            artworkData: nil
+        )
+        player.play(track: track, in: [track])
     }
 
 #if DEBUG

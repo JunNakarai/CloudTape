@@ -18,6 +18,7 @@
 		C87CB38DED4E4CCF752BBE06 /* PlayerBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = D807E2DCC792FF6BFB9E6294 /* PlayerBar.swift */; };
 		CA93CB2A2C1FBE54FA40F8AB /* ArtworkThumbnail.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55FBA8A7097349339A1B6629 /* ArtworkThumbnail.swift */; };
 		CFF6600159DF978B4D939673 /* EmptyLibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A297E8292374D877B63C986D /* EmptyLibraryView.swift */; };
+		DDA67987906A512C93A8CA3F /* CloudTape-Demo-Audio.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 4212D27CC983C511E82DC972 /* CloudTape-Demo-Audio.m4a */; };
 		EE34F003916481ACC112F738 /* TimeFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C66CEF8E4730A72068F495D /* TimeFormatting.swift */; };
 /* End PBXBuildFile section */
 
@@ -26,6 +27,7 @@
 		13C6A4215A3239C4EB1D1984 /* CloudTape.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = CloudTape.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1C66CEF8E4730A72068F495D /* TimeFormatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeFormatting.swift; sourceTree = "<group>"; };
 		341A7847C531F4B9679AAAA6 /* Track.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Track.swift; sourceTree = "<group>"; };
+		4212D27CC983C511E82DC972 /* CloudTape-Demo-Audio.m4a */ = {isa = PBXFileReference; path = "CloudTape-Demo-Audio.m4a"; sourceTree = "<group>"; };
 		55FBA8A7097349339A1B6629 /* ArtworkThumbnail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArtworkThumbnail.swift; sourceTree = "<group>"; };
 		6997FD15E864B9BC2CE88B5E /* MusicLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MusicLibrary.swift; sourceTree = "<group>"; };
 		A185C87B00498B183229F9FE /* TrackRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackRow.swift; sourceTree = "<group>"; };
@@ -46,6 +48,7 @@
 				80F2430EEB2797CF4E95B252 /* App */,
 				330B46F35BCDCA376DF48D7E /* Features */,
 				E53FFB82034D4620CC51165E /* Models */,
+				F5F72FB15E7C9743C033B805 /* Resources */,
 				44A48FB7E94F69699805CC94 /* Services */,
 				B5936E1A2995A9A6DEFD8F24 /* SupportingFiles */,
 				8DADBCD7DC3CE7FB69A9A688 /* Views */,
@@ -139,6 +142,14 @@
 			path = Models;
 			sourceTree = "<group>";
 		};
+		F5F72FB15E7C9743C033B805 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				4212D27CC983C511E82DC972 /* CloudTape-Demo-Audio.m4a */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -200,6 +211,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B4ECE150568FFFDF8AD70C42 /* Assets.xcassets in Resources */,
+				DDA67987906A512C93A8CA3F /* CloudTape-Demo-Audio.m4a in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -3,6 +3,7 @@ import SwiftUI
 struct EmptyLibraryView: View {
     let state: LibraryState
     let chooseFolder: () -> Void
+    let trySampleAudio: (() -> Void)?
 
     var body: some View {
         ContentUnavailableView {
@@ -13,6 +14,11 @@ struct EmptyLibraryView: View {
             if showsFolderButton {
                 Button("フォルダを選ぶ", action: chooseFolder)
                     .buttonStyle(.borderedProminent)
+
+                if let trySampleAudio {
+                    Button("Try Sample Audio", action: trySampleAudio)
+                        .buttonStyle(.bordered)
+                }
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
