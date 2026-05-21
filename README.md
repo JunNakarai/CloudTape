@@ -106,6 +106,48 @@ Release materials live in:
 - `docs/release-checklist.md`
 - `docs/screenshot-plan.md`
 
+### App Store Screenshots
+
+Use the local screenshot script to build the Debug simulator app, install it on a 6.5-inch App Store-compatible simulator, seed screenshot-only demo media, and capture the five required states into `docs/screenshots/`.
+
+Default simulator:
+
+```text
+CloudTape App Store 6.5 iPhone 11 Pro Max
+```
+
+The simulator is created from the `iPhone 11 Pro Max` device type when needed. That device captures at `1242 x 2688`, which is one of the accepted iPhone 6.5-inch App Store Connect screenshot sizes.
+
+Run from the repository root:
+
+```sh
+./scripts/capture-screenshots.sh
+```
+
+The script launches the app with Debug-only demo arguments, then captures:
+
+```sh
+xcrun simctl io booted screenshot docs/screenshots/iphone-01-library.png
+xcrun simctl io booted screenshot docs/screenshots/iphone-02-mini-player.png
+xcrun simctl io booted screenshot docs/screenshots/iphone-03-full-player.png
+xcrun simctl io booted screenshot docs/screenshots/iphone-04-search.png
+xcrun simctl io booted screenshot docs/screenshots/iphone-05-folder-state.png
+```
+
+Check the generated sizes:
+
+```sh
+sips -g pixelWidth -g pixelHeight docs/screenshots/*.png
+```
+
+Upload these files to App Store Connect:
+
+- `docs/screenshots/iphone-01-library.png`
+- `docs/screenshots/iphone-02-mini-player.png`
+- `docs/screenshots/iphone-03-full-player.png`
+- `docs/screenshots/iphone-04-search.png`
+- `docs/screenshots/iphone-05-folder-state.png`
+
 ## GitHub Pages Site
 
 The public CloudTape introduction site is a static HTML/CSS site in `docs/`.

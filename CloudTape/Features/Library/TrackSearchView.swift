@@ -3,6 +3,7 @@ import SwiftUI
 struct TrackSearchView: View {
     let tracks: [Track]
     let currentTrack: Track?
+    let initialSearchText: String
     let close: () -> Void
     let play: (Track) -> Void
     let playRandom: ([Track]) -> Bool
@@ -68,6 +69,9 @@ struct TrackSearchView: View {
             }
             .background(Color(.systemGroupedBackground))
             .onAppear {
+                if searchText.isEmpty {
+                    searchText = initialSearchText
+                }
                 isSearchFocused = true
             }
         }

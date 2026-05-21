@@ -5,12 +5,12 @@ SCHEME="${SCHEME:-CloudTape}"
 CONFIGURATION="${CONFIGURATION:-Debug}"
 BUNDLE_ID="${BUNDLE_ID:-io.github.junnakarai.cloudtape}"
 DERIVED_DATA_PATH="${DERIVED_DATA_PATH:-/private/tmp/cloudtape-screenshot-derived}"
-OUTPUT_DIR="${OUTPUT_DIR:-docs/assets/screenshots}"
-SCREENSHOT_NAME="${SCREENSHOT_NAME:-cloudtape-home.png}"
+OUTPUT_DIR="${OUTPUT_DIR:-docs/screenshots}"
 DEMO_MEDIA_DIR="${DEMO_MEDIA_DIR:-docs/assets/demo-media}"
-DEMO_ENABLED="${DEMO_ENABLED:-1}"
-REQUESTED_DEVICE_NAME="${DEVICE_NAME:-}"
+APP_STORE_DEVICE_NAME="${DEVICE_NAME:-CloudTape App Store 6.5 iPhone 11 Pro Max}"
+APP_STORE_DEVICE_TYPE="${DEVICE_TYPE:-iPhone 11 Pro Max}"
 REQUESTED_DEVICE_ID="${DEVICE_ID:-}"
+SCREENSHOT_SETTLE_SECONDS="${SCREENSHOT_SETTLE_SECONDS:-8}"
 
 die() {
   printf 'error: %s\n' "$*" >&2
@@ -21,6 +21,9 @@ info() {
   printf '==> %s\n' "$*"
 }
 
+command -v ffmpeg >/dev/null || die "ffmpeg is not available."
+command -v swift >/dev/null || die "swift is not available."
+command -v sips >/dev/null || die "sips is not available."
 command -v xcodebuild >/dev/null || die "xcodebuild is not available."
 command -v xcrun >/dev/null || die "xcrun is not available."
 
@@ -58,79 +61,100 @@ device_type_id() {
   '
 }
 
+device_id_by_name() {
+  local name="$1"
+  xcrun simctl list devices available | awk -v name="$name" '
+    index($0, name " (") > 0 {
+      print
+      exit
+    }
+  ' | sed -E 's/.*\(([0-9A-Fa-f-]{36})\).*/\1/'
+}
+
 select_device() {
   if [[ -n "$REQUESTED_DEVICE_ID" ]]; then
     DEVICE_ID="$REQUESTED_DEVICE_ID"
     DEVICE_DESTINATION="id=$DEVICE_ID"
     SIMCTL_TARGET="$DEVICE_ID"
+    DEVICE_NAME="$REQUESTED_DEVICE_ID"
     return
   fi
 
-  local devices
-  devices="$(xcrun simctl list devices available)"
-
-  if [[ -n "$REQUESTED_DEVICE_NAME" ]] && grep -q "^[[:space:]]*$REQUESTED_DEVICE_NAME (" <<<"$devices"; then
-    DEVICE_NAME="$REQUESTED_DEVICE_NAME"
-    DEVICE_DESTINATION="name=$DEVICE_NAME"
-    SIMCTL_TARGET="$DEVICE_NAME"
-    return
+  DEVICE_ID="$(device_id_by_name "$APP_STORE_DEVICE_NAME")"
+  if [[ -z "$DEVICE_ID" ]]; then
+    DEVICE_ID="$(device_id_by_name "$APP_STORE_DEVICE_TYPE")"
   fi
 
-  local preferred fallback_name runtime type_id created_name
-  for preferred in "iPhone 16 Pro" "iPhone 15 Pro" "iPhone 15"; do
-    if grep -q "^[[:space:]]*$preferred (" <<<"$devices"; then
-      DEVICE_NAME="$preferred"
-      DEVICE_DESTINATION="name=$DEVICE_NAME"
-      SIMCTL_TARGET="$DEVICE_NAME"
-      return
-    fi
-  done
-
-  fallback_name="$(awk '/^[[:space:]]+iPhone / {
-    line=$0
-    sub(/^[[:space:]]+/, "", line)
-    sub(/[[:space:]]+\(.*/, "", line)
-    print line
-    exit
-  }' <<<"$devices")"
-
-  if [[ -n "$fallback_name" ]]; then
-    DEVICE_NAME="$fallback_name"
-    DEVICE_DESTINATION="name=$DEVICE_NAME"
-    SIMCTL_TARGET="$DEVICE_NAME"
-    return
+  if [[ -z "$DEVICE_ID" ]]; then
+    local runtime type_id
+    runtime="$(latest_ios_runtime)"
+    [[ -n "$runtime" ]] || die "No available iOS Simulator runtimes found."
+    type_id="$(device_type_id "$APP_STORE_DEVICE_TYPE")"
+    [[ -n "$type_id" ]] || die "Could not find Simulator device type: $APP_STORE_DEVICE_TYPE"
+    DEVICE_ID="$(xcrun simctl create "$APP_STORE_DEVICE_NAME" "$type_id" "$runtime")"
+    DEVICE_NAME="$APP_STORE_DEVICE_NAME"
+  else
+    DEVICE_NAME="$APP_STORE_DEVICE_TYPE"
   fi
 
-  runtime="$(latest_ios_runtime)"
-  [[ -n "$runtime" ]] || die "No available iOS Simulator runtimes found. Install an iOS Simulator runtime in Xcode Settings > Platforms, then rerun this script."
-
-  for preferred in "${REQUESTED_DEVICE_NAME:-}" "iPhone 16 Pro" "iPhone 15 Pro" "iPhone 15"; do
-    [[ -n "$preferred" ]] || continue
-    type_id="$(device_type_id "$preferred")"
-    if [[ -n "$type_id" ]]; then
-      created_name="CloudTape $preferred"
-      DEVICE_ID="$(xcrun simctl create "$created_name" "$type_id" "$runtime")"
-      DEVICE_NAME="$created_name"
-      DEVICE_DESTINATION="id=$DEVICE_ID"
-      SIMCTL_TARGET="$DEVICE_ID"
-      return
-    fi
-  done
-
-  die "Could not find a usable iPhone Simulator device type."
+  DEVICE_DESTINATION="id=$DEVICE_ID"
+  SIMCTL_TARGET="$DEVICE_ID"
 }
 
-DEVICE_NAME=""
-DEVICE_ID=""
-DEVICE_DESTINATION=""
-SIMCTL_TARGET=""
+generate_demo_media() {
+  info "Generating App Store demo media"
+  mkdir -p "$DEMO_MEDIA_DIR"
+  swift scripts/generate-demo-media.swift "$DEMO_MEDIA_DIR"
+}
+
+launch_app() {
+  local args=("$@")
+  xcrun simctl terminate "$SIMCTL_TARGET" "$BUNDLE_ID" >/dev/null 2>&1 || true
+  if [[ "${#args[@]}" -gt 0 ]]; then
+    xcrun simctl launch "$SIMCTL_TARGET" "$BUNDLE_ID" --args "${args[@]}"
+  else
+    xcrun simctl launch "$SIMCTL_TARGET" "$BUNDLE_ID"
+  fi
+}
+
+capture_state() {
+  local filename="$1"
+  shift
+  local path="$OUTPUT_DIR/$filename"
+
+  info "Launching state for $filename"
+  launch_app "$@"
+  sleep "$SCREENSHOT_SETTLE_SECONDS"
+
+  info "Capturing screenshot: $path"
+  xcrun simctl io "$SIMCTL_TARGET" screenshot "$path"
+}
+
+validate_size() {
+  local path="$1"
+  local width height
+  width="$(sips -g pixelWidth "$path" | awk '/pixelWidth/ { print $2 }')"
+  height="$(sips -g pixelHeight "$path" | awk '/pixelHeight/ { print $2 }')"
+
+  case "${width}x${height}" in
+    1242x2688|2688x1242|1284x2778|2778x1284)
+      printf '%s %sx%s OK\n' "$path" "$width" "$height"
+      ;;
+    *)
+      printf '%s %sx%s INVALID\n' "$path" "$width" "$height"
+      return 1
+      ;;
+  esac
+}
+
 select_device
-[[ -n "$SIMCTL_TARGET" ]] || die "Could not select an iPhone Simulator."
+generate_demo_media
 
 info "Scheme: $SCHEME"
-info "Simulator: $DEVICE_NAME"
+info "Simulator: $DEVICE_NAME ($SIMCTL_TARGET)"
 info "Bundle ID: $BUNDLE_ID"
 info "DerivedData: $DERIVED_DATA_PATH"
+info "Output: $OUTPUT_DIR"
 
 mkdir -p "$OUTPUT_DIR"
 
@@ -158,52 +182,28 @@ open -a Simulator
 info "Installing app"
 xcrun simctl install "$SIMCTL_TARGET" "$APP_PATH"
 
-LAUNCH_ARGS=()
-if [[ "$DEMO_ENABLED" == "1" && -d "$DEMO_MEDIA_DIR" ]]; then
-  DATA_CONTAINER="$(xcrun simctl get_app_container "$SIMCTL_TARGET" "$BUNDLE_ID" data)"
-  DEMO_CONTAINER_DIR="$DATA_CONTAINER/Documents/CloudTapeDemo"
-  mkdir -p "$DEMO_CONTAINER_DIR"
-  find "$DEMO_CONTAINER_DIR" -maxdepth 1 -type f -name '*.mp3' -delete
-  find "$DEMO_MEDIA_DIR" -maxdepth 1 -type f -name '*.mp3' ! -name '*source*' -exec cp {} "$DEMO_CONTAINER_DIR/" \;
+DATA_CONTAINER="$(xcrun simctl get_app_container "$SIMCTL_TARGET" "$BUNDLE_ID" data)"
+DEMO_CONTAINER_DIR="$DATA_CONTAINER/Documents/CloudTapeDemo"
+EMPTY_CONTAINER_DIR="$DATA_CONTAINER/Documents/CloudTapeEmpty"
+rm -rf "$DEMO_CONTAINER_DIR" "$EMPTY_CONTAINER_DIR"
+mkdir -p "$DEMO_CONTAINER_DIR" "$EMPTY_CONTAINER_DIR"
+find "$DEMO_MEDIA_DIR" -maxdepth 1 -type f -name 'cloudtape-session-*.mp3' -exec cp {} "$DEMO_CONTAINER_DIR/" \;
 
-  if find "$DEMO_CONTAINER_DIR" -maxdepth 1 -type f -name '*.mp3' | grep -q .; then
-    info "Copied demo media to: $DEMO_CONTAINER_DIR"
-    LAUNCH_ARGS=(-CloudTapeDemoFolder "$DEMO_CONTAINER_DIR" -CloudTapeDemoAutoplay)
-  else
-    info "No demo MP3 files found in $DEMO_MEDIA_DIR; launching without demo media"
-  fi
+if ! find "$DEMO_CONTAINER_DIR" -maxdepth 1 -type f -name '*.mp3' | grep -q .; then
+  die "No App Store demo MP3 files were copied into the Simulator container."
 fi
 
-launch_app() {
-  if [[ "$#" -gt 0 ]]; then
-    xcrun simctl launch "$SIMCTL_TARGET" "$BUNDLE_ID" --args "$@"
-  else
-    xcrun simctl launch "$SIMCTL_TARGET" "$BUNDLE_ID"
-  fi
-}
+BASE_ARGS=(-CloudTapeDemoFolder "$DEMO_CONTAINER_DIR")
 
-info "Launching app"
-launch_app "${LAUNCH_ARGS[@]}"
-sleep 6
+capture_state "iphone-01-library.png" "${BASE_ARGS[@]}"
+capture_state "iphone-02-mini-player.png" "${BASE_ARGS[@]}" -CloudTapeDemoAutoplay
+capture_state "iphone-03-full-player.png" "${BASE_ARGS[@]}" -CloudTapeDemoAutoplay -CloudTapeDemoExpandPlayer
+capture_state "iphone-04-search.png" "${BASE_ARGS[@]}" -CloudTapeDemoShowSearch -CloudTapeDemoSearchQuery "Sailor"
+capture_state "iphone-05-folder-state.png" -CloudTapeDemoFolder "$EMPTY_CONTAINER_DIR"
 
-SCREENSHOT_PATH="$OUTPUT_DIR/$SCREENSHOT_NAME"
-info "Capturing screenshot: $SCREENSHOT_PATH"
-xcrun simctl io "$SIMCTL_TARGET" screenshot "$SCREENSHOT_PATH"
-
-if [[ "${#LAUNCH_ARGS[@]}" -gt 0 ]]; then
-  LIBRARY_SCREENSHOT_PATH="$OUTPUT_DIR/cloudtape-library.png"
-  info "Capturing library screenshot: $LIBRARY_SCREENSHOT_PATH"
-  xcrun simctl io "$SIMCTL_TARGET" screenshot "$LIBRARY_SCREENSHOT_PATH"
-
-  info "Relaunching app with expanded player"
-  xcrun simctl terminate "$SIMCTL_TARGET" "$BUNDLE_ID" >/dev/null 2>&1 || true
-  launch_app "${LAUNCH_ARGS[@]}" -CloudTapeDemoExpandPlayer
-  sleep 6
-
-  NOW_PLAYING_SCREENSHOT_PATH="$OUTPUT_DIR/cloudtape-now-playing.png"
-  info "Capturing now playing screenshot: $NOW_PLAYING_SCREENSHOT_PATH"
-  xcrun simctl io "$SIMCTL_TARGET" screenshot "$NOW_PLAYING_SCREENSHOT_PATH"
-fi
+info "Validating App Store screenshot sizes"
+for screenshot in "$OUTPUT_DIR"/iphone-*.png; do
+  validate_size "$screenshot"
+done
 
 info "Done"
-printf '%s\n' "$SCREENSHOT_PATH"

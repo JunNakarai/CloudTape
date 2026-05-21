@@ -5,6 +5,8 @@ struct DemoLaunchOptions {
     let folderURL: URL?
     let autoplay: Bool
     let expandPlayer: Bool
+    let showSearch: Bool
+    let searchQuery: String
 
     static let current = DemoLaunchOptions(arguments: ProcessInfo.processInfo.arguments)
 
@@ -13,6 +15,8 @@ struct DemoLaunchOptions {
             .map { URL(fileURLWithPath: $0, isDirectory: true) }
         autoplay = arguments.contains("-CloudTapeDemoAutoplay")
         expandPlayer = arguments.contains("-CloudTapeDemoExpandPlayer")
+        showSearch = arguments.contains("-CloudTapeDemoShowSearch")
+        searchQuery = Self.value(after: "-CloudTapeDemoSearchQuery", in: arguments) ?? ""
     }
 
     private static func value(after key: String, in arguments: [String]) -> String? {

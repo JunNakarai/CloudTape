@@ -11,6 +11,7 @@ struct LibraryView: View {
     @State private var playbackMessage: String?
 #if DEBUG
     @State private var didStartDemoPlayback = false
+    @State private var didShowDemoSearch = false
 #endif
 
     var body: some View {
@@ -49,6 +50,7 @@ struct LibraryView: View {
                 player.restoreLastPlayback(in: tracks)
 #if DEBUG
                 startDemoPlaybackIfNeeded(from: tracks)
+                showDemoSearchIfNeeded(from: tracks)
 #endif
             }
             .toolbar {
@@ -87,6 +89,7 @@ struct LibraryView: View {
                 TrackSearchView(
                     tracks: library.tracks,
                     currentTrack: player.currentTrack,
+                    initialSearchText: demoSearchQuery,
                     close: { isSearching = false },
                     play: { track in
                         player.play(track: track, in: library.tracks)
@@ -236,6 +239,14 @@ struct LibraryView: View {
         }
     }
 
+    private var demoSearchQuery: String {
+#if DEBUG
+        DemoLaunchOptions.current.searchQuery
+#else
+        ""
+#endif
+    }
+
     @discardableResult
     private func startRandomPlayback(from tracks: [Track]) -> Bool {
         guard player.playRandom(in: tracks) else {
@@ -255,6 +266,14 @@ struct LibraryView: View {
         if startRandomPlayback(from: tracks), DemoLaunchOptions.current.expandPlayer {
             isPlayerExpanded = true
         }
+    }
+
+    private func showDemoSearchIfNeeded(from tracks: [Track]) {
+        guard DemoLaunchOptions.current.showSearch else { return }
+        guard !didShowDemoSearch, !tracks.isEmpty else { return }
+
+        didShowDemoSearch = true
+        isSearching = true
     }
 #endif
 }
