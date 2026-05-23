@@ -119,9 +119,7 @@ struct PlayerBar: View {
             Button {
                 player.togglePlayPause()
             } label: {
-                Image(systemName: player.isPlaying ? "pause.circle.fill" : "play.circle.fill")
-                    .font(.system(size: 40))
-                    .symbolRenderingMode(.hierarchical)
+                PlayerPlayPauseButton(isPlaying: player.isPlaying, size: 44)
             }
             .buttonStyle(.plain)
             .disabled(player.currentTrack == nil)
@@ -284,8 +282,7 @@ struct PlayerBar: View {
             Button {
                 player.togglePlayPause()
             } label: {
-                Image(systemName: player.isPlaying ? "pause.circle.fill" : "play.circle.fill")
-                    .font(.system(size: playButtonSize))
+                PlayerPlayPauseButton(isPlaying: player.isPlaying, size: playButtonSize)
             }
             .disabled(player.currentTrack == nil)
 
@@ -298,5 +295,27 @@ struct PlayerBar: View {
         }
         .buttonStyle(.plain)
         .foregroundStyle(.white)
+    }
+}
+
+private struct PlayerPlayPauseButton: View {
+    let isPlaying: Bool
+    let size: CGFloat
+
+    private var iconSize: CGFloat {
+        max(size * 0.38, 17)
+    }
+
+    var body: some View {
+        Image(systemName: isPlaying ? "pause.fill" : "play.fill")
+            .font(.system(size: iconSize, weight: .bold))
+            .foregroundStyle(Color.black.opacity(0.86))
+            .frame(width: size, height: size)
+            .background {
+                Circle()
+                    .fill(Color.white.opacity(0.96))
+                    .shadow(color: .black.opacity(0.24), radius: 8, x: 0, y: 4)
+            }
+            .contentShape(Circle())
     }
 }
