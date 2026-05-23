@@ -4,13 +4,11 @@ Hello App Review Team,
 
 Thank you for the note. CloudTape does not require an account.
 
-To help you verify the app's core playback functionality, please use this demo audio file:
+To help you verify the app's core playback functionality, CloudTape includes a bundled sample audio path.
 
-[PASTE ICLOUD SHARE LINK HERE]
+On the empty library screen, tap `Try Sample Audio`. This plays `CloudTape-Demo-Audio.m4a` from the app bundle so playback, the mini player, Lock Screen controls, and background audio can be verified without signing in or preparing an external music folder.
 
-Please download/save the demo audio file to Files/iCloud Drive. Then launch CloudTape and select the folder containing the demo audio file.
-
-After selecting the folder, choose `CloudTape-Demo-Audio.m4a` in CloudTape. Playback, mini player, lock screen controls, and background playback can be verified with this demo file.
+The normal user flow is still available: users can choose a folder from iCloud Drive or the Files app and play their own audio files.
 
 The demo file is a short synthetic confirmation tone generated for review. It does not contain third-party music or copyrighted music.
 

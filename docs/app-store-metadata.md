@@ -1,5 +1,20 @@
 # CloudTape App Store Metadata
 
+## Current Release
+
+- Version: 1.0.0
+- Build: 1
+- Platform: iPhone
+- Minimum OS: iOS 17.0
+- Bundle ID: `io.github.junnakarai.cloudtape`
+
+## URLs
+
+- Support URL: https://junnakarai.github.io/CloudTape/support.html
+- Privacy Policy URL: https://junnakarai.github.io/CloudTape/privacy-policy.html
+- Marketing URL: https://junnakarai.github.io/CloudTape/
+- App Store URL: TODO: add the public App Store URL after the listing URL is confirmed.
+
 ## Positioning
 
 CloudTape is a minimal music player for iCloud Drive. It is for people who already keep their own music files and want a quiet, simple way to listen.
@@ -25,6 +40,14 @@ Preferred: Music from iCloud Drive
 ## Keywords
 
 music,player,icloud,drive,audio,library,shuffle,files,offline,personal
+
+## Support URL
+
+https://junnakarai.github.io/CloudTape/support.html
+
+## Privacy Policy URL
+
+https://junnakarai.github.io/CloudTape/privacy-policy.html
 
 ## Promotional Text
 
@@ -103,3 +126,17 @@ Keywords: 音楽,プレイヤー,icloud,drive,オーディオ,ライブラリ,�
 - Show real app screens, not technical file-management views.
 - Prefer simple phrases such as "Choose a folder", "Shuffle your library", "A quiet mini player", and "Search your music".
 - Avoid showing settings-heavy or diagnostic screens in App Store screenshots.
+
+## GitHub Repository Settings Suggestions
+
+Description:
+
+```text
+Minimal iOS music player for audio files stored in iCloud Drive or Files.
+```
+
+Topics:
+
+```text
+ios, swift, swiftui, music-player, audio-player, icloud-drive, files-app, avfoundation, personal-library
+```

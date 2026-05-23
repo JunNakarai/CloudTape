@@ -62,8 +62,8 @@
 
 - Test a small iPhone.
 - Test a large iPhone.
-- Test iPad portrait.
-- Test iPad landscape.
+- Confirm App Store Connect still recognizes the app as iPhone-only.
+- Do not add iPad screenshots unless iPad support is intentionally enabled later.
 - Test Dark Mode.
 - Test Light Mode.
 - Confirm mini player and expanded player do not cover important content.
@@ -98,7 +98,7 @@
 - Add privacy policy URL.
 - Add support URL.
 - Upload screenshots for required iPhone sizes.
-- Add iPad screenshots if iPad is supported.
+- Do not add iPad screenshots unless iPad support is intentionally enabled later.
 - Add TestFlight beta notes focused on folder selection, shuffle playback, background playback, and iCloud sync delays.
 
 ## TestFlight Notes

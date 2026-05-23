@@ -3,6 +3,8 @@
 
 # Xcode user state
 *.xcuserstate
+*.xccheckout
+*.xcscmblueprint
 xcuserdata/
 *.xcuserdatad/
 CloudTape*.xcodeproj/project.xcworkspace/xcuserdata/
@@ -19,6 +21,7 @@ DerivedData*/
 
 # Swift Package Manager
 .build/
+.swiftpm/
 
 # Logs and reports
 *.log

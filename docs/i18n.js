@@ -45,7 +45,7 @@
       "support.check3": "If folder access stops working, choose the folder again in the app.",
       "support.check4": "Make sure the file format is supported by iOS playback.",
       "support.contactTitle": "Contact",
-      "support.contactBody": "For support, open an issue in the GitHub repository or contact the developer through the App Store support channel after release."
+      "support.contactBody": "For support, open an issue in the GitHub repository or use the support link listed on the App Store page."
     },
     ja: {
       "meta.title": "CloudTape - iCloud Drive 音楽プレイヤー",
@@ -90,7 +90,7 @@
       "support.check3": "フォルダにアクセスできなくなった場合は、アプリ内でもう一度フォルダを選び直してください。",
       "support.check4": "音声ファイル形式が iOS の再生に対応しているか確認してください。",
       "support.contactTitle": "連絡先",
-      "support.contactBody": "サポートが必要な場合は、GitHub リポジトリで issue を作成するか、リリース後は App Store のサポート窓口から連絡してください。"
+      "support.contactBody": "サポートが必要な場合は、GitHub リポジトリで issue を作成するか、App Store に掲載されているサポートリンクから連絡してください。"
     }
   };
 

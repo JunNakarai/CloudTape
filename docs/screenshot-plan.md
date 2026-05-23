@@ -61,8 +61,7 @@ Caption idea: Calm in Light and Dark Mode
 - iPhone 6.9-inch display
 - iPhone 6.5-inch display if required by App Store Connect
 - iPhone 5.5-inch display if required by App Store Connect
-- iPad portrait if iPad remains supported
-- iPad landscape if screenshots are requested for iPad
+- Do not prepare iPad screenshots unless iPad support is intentionally enabled later
 
 ## Capture Checklist
 
