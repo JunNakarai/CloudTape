@@ -164,7 +164,6 @@ final class MusicLibrary: ObservableObject {
             try FileManager.default.startDownloadingUbiquitousItem(at: url)
             return true
         } catch {
-            print("iCloud download request failed: \(error)")
             return false
         }
     }

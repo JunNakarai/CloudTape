@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		4129FBB9BB33D528A0404B08 /* AudioPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBB8B0A3E3167BC078572065 /* AudioPlayer.swift */; };
 		4A05C150FEABE6D2B773FB11 /* TrackRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = A185C87B00498B183229F9FE /* TrackRow.swift */; };
-		4EC5DEFE8BC0EB135E43CAE6 /* TrackSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB9D832A26AA66EB70C9D000 /* TrackSearchView.swift */; };
 		72542CE837E7E33D709419B2 /* MusicLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6997FD15E864B9BC2CE88B5E /* MusicLibrary.swift */; };
 		850989E379FEB6D97FA5CFAC /* Track.swift in Sources */ = {isa = PBXBuildFile; fileRef = 341A7847C531F4B9679AAAA6 /* Track.swift */; };
 		B07A6A1A3F8B5D6D630C65B0 /* LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 137C8238D7790D46B45BC371 /* LibraryView.swift */; };
@@ -33,7 +32,6 @@
 		A185C87B00498B183229F9FE /* TrackRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackRow.swift; sourceTree = "<group>"; };
 		A297E8292374D877B63C986D /* EmptyLibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyLibraryView.swift; sourceTree = "<group>"; };
 		A82D5FBADA3543B3FAC78340 /* CloudTapeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudTapeApp.swift; sourceTree = "<group>"; };
-		AB9D832A26AA66EB70C9D000 /* TrackSearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackSearchView.swift; sourceTree = "<group>"; };
 		B5AFC4BADCF6A306AC9E294C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		D807E2DCC792FF6BFB9E6294 /* PlayerBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerBar.swift; sourceTree = "<group>"; };
 		DBB8B0A3E3167BC078572065 /* AudioPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioPlayer.swift; sourceTree = "<group>"; };
@@ -88,7 +86,6 @@
 				A297E8292374D877B63C986D /* EmptyLibraryView.swift */,
 				137C8238D7790D46B45BC371 /* LibraryView.swift */,
 				A185C87B00498B183229F9FE /* TrackRow.swift */,
-				AB9D832A26AA66EB70C9D000 /* TrackSearchView.swift */,
 			);
 			path = Library;
 			sourceTree = "<group>";
@@ -232,7 +229,6 @@
 				EE34F003916481ACC112F738 /* TimeFormatting.swift in Sources */,
 				850989E379FEB6D97FA5CFAC /* Track.swift in Sources */,
 				4A05C150FEABE6D2B773FB11 /* TrackRow.swift in Sources */,
-				4EC5DEFE8BC0EB135E43CAE6 /* TrackSearchView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
