@@ -245,7 +245,7 @@ struct PlayerBar: View {
 
     private var shuffleButton: some View {
         Button {
-            player.toggleShuffle()
+            toggleShuffleMode()
         } label: {
             Image(systemName: "shuffle")
                 .font(.system(size: 22, weight: .semibold))
@@ -254,8 +254,12 @@ struct PlayerBar: View {
         }
         .buttonStyle(.plain)
         .disabled(player.currentTrack == nil)
-        .accessibilityLabel(player.mode == .shuffled ? "シャッフルをオフ" : "シャッフルをオン")
+        .accessibilityLabel("シャッフル再生を切り替え")
         .accessibilityValue(player.mode == .shuffled ? "オン" : "オフ")
+    }
+
+    private func toggleShuffleMode() {
+        player.toggleShuffleMode()
     }
 
     private var expandedTransportControls: some View {

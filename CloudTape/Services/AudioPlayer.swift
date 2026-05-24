@@ -68,11 +68,10 @@ final class AudioPlayer: ObservableObject {
     }
 
     @discardableResult
-    func playRandom(in allTracks: [Track]) -> Bool {
+    func playRandomTrack(in allTracks: [Track]) -> Bool {
         guard !allTracks.isEmpty else { return false }
         tracks = allTracks
         history.removeAll()
-        setShuffleEnabled(true)
 
         guard let track = allTracks.randomElement() else { return false }
         rebuildQueue(startingAt: track)
@@ -138,7 +137,7 @@ final class AudioPlayer: ObservableObject {
         playCurrent(autoPlay: true)
     }
 
-    func toggleShuffle() {
+    func toggleShuffleMode() {
         setShuffleEnabled(mode == .ordered)
         if let currentTrack {
             rebuildQueue(startingAt: currentTrack)

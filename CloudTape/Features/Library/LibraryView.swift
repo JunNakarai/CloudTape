@@ -178,25 +178,16 @@ struct LibraryView: View {
     @ViewBuilder
     private var floatingPlaybackButton: some View {
         if !library.tracks.isEmpty && library.state != .scanning {
-            if player.currentTrack == nil {
+            if !isPlayerExpanded {
                 floatingActionButton(
-                    systemName: "play.fill",
-                    size: 64,
-                    iconSize: 25,
-                    accessibilityLabel: "ランダム再生"
+                    systemName: "shuffle.circle.fill",
+                    size: player.currentTrack == nil ? 64 : 52,
+                    iconSize: player.currentTrack == nil ? 29 : 24,
+                    accessibilityLabel: "ランダムな曲を再生",
+                    foregroundStyle: Color.white,
+                    backgroundStyle: Color.accentColor
                 ) {
-                    startRandomPlayback(from: library.tracks)
-                }
-                .transition(.scale(scale: 0.82, anchor: .bottomTrailing).combined(with: .opacity))
-            } else if !isPlayerExpanded {
-                floatingActionButton(
-                    systemName: "shuffle",
-                    size: 52,
-                    iconSize: 20,
-                    accessibilityLabel: player.mode == .shuffled ? "シャッフルをオフ" : "シャッフルをオン",
-                    isActive: player.mode == .shuffled
-                ) {
-                    player.toggleShuffle()
+                    playRandomTrack()
                 }
                 .transition(.scale(scale: 0.82, anchor: .bottomTrailing).combined(with: .opacity))
             }
@@ -212,17 +203,18 @@ struct LibraryView: View {
         size: CGFloat,
         iconSize: CGFloat,
         accessibilityLabel: String,
-        isActive: Bool = false,
+        foregroundStyle: Color = Color.black.opacity(0.88),
+        backgroundStyle: Color = Color.white.opacity(0.96),
         action: @escaping () -> Void
     ) -> some View {
         Button(action: action) {
             Image(systemName: systemName)
                 .font(.system(size: iconSize, weight: .bold))
-                .foregroundStyle(isActive ? Color.white : Color.black.opacity(0.88))
+                .foregroundStyle(foregroundStyle)
                 .frame(width: size, height: size)
                 .background {
                     Circle()
-                        .fill(isActive ? Color.accentColor : Color.white.opacity(0.96))
+                        .fill(backgroundStyle)
                         .shadow(color: .black.opacity(0.24), radius: 14, x: 0, y: 7)
                         .shadow(color: .black.opacity(0.12), radius: 3, x: 0, y: 1)
                 }
@@ -366,8 +358,8 @@ struct LibraryView: View {
     }
 
     @discardableResult
-    private func startRandomPlayback(from tracks: [Track]) -> Bool {
-        guard player.playRandom(in: tracks) else {
+    private func playRandomTrack() -> Bool {
+        guard player.playRandomTrack(in: library.tracks) else {
             playbackMessage = "再生できる曲がありません。"
             return false
         }
@@ -407,7 +399,7 @@ struct LibraryView: View {
         guard tracks.contains(where: { $0.artworkData != nil }) else { return }
 
         didStartDemoPlayback = true
-        if startRandomPlayback(from: tracks), DemoLaunchOptions.current.expandPlayer {
+        if playRandomTrack(), DemoLaunchOptions.current.expandPlayer {
             isPlayerExpanded = true
         }
     }
