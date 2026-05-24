@@ -14,7 +14,6 @@ struct LibraryView: View {
     @State private var playbackMessage: String?
     @State private var informationMessage: String?
     @State private var didRestoreLastPlayback = false
-    @State private var libraryListTopOffset: CGFloat = 0
     @FocusState private var isSearchFieldFocused: Bool
 #if DEBUG
     @State private var didStartDemoPlayback = false
@@ -25,8 +24,11 @@ struct LibraryView: View {
         NavigationStack {
             GeometryReader { geometry in
                 ZStack(alignment: .bottom) {
-                    libraryContent
-                        .blur(radius: 8 * playerExpansionProgress)
+                    VStack(spacing: 0) {
+                        libraryHeader
+                        libraryContent
+                    }
+                    .blur(radius: 8 * playerExpansionProgress)
 
                     Color.black
                         .opacity(0.18 * playerExpansionProgress)
@@ -60,19 +62,13 @@ struct LibraryView: View {
                         .animation(.spring(response: 0.34, dampingFraction: 0.82), value: player.currentTrack?.id)
                 }
             }
-            .navigationTitle("CloudTape")
-            .navigationBarTitleDisplayMode(.large)
+            .toolbar(.hidden, for: .navigationBar)
             .onChange(of: library.tracks) { _, tracks in
                 restorePlaybackIfNeeded(from: tracks)
 #if DEBUG
                 startDemoPlaybackIfNeeded(from: tracks)
                 showDemoSearchIfNeeded(from: tracks)
 #endif
-            }
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    libraryMenu
-                }
             }
             .fileImporter(
                 isPresented: $isImportingFolder,
@@ -135,12 +131,6 @@ struct LibraryView: View {
             )
         } else {
             List {
-                pullSearchDetector
-
-                if isSearchVisible {
-                    searchRow
-                }
-
                 if case .syncing(let count) = library.state {
                     syncingRow(count: count)
                 }
@@ -159,12 +149,41 @@ struct LibraryView: View {
             }
             .listStyle(.plain)
             .safeAreaPadding(.bottom, contentBottomPadding)
-            .coordinateSpace(name: "LibraryList")
-            .onPreferenceChange(PullSearchOffsetKey.self) { offset in
-                libraryListTopOffset = offset
-            }
-            .simultaneousGesture(pullSearchGesture)
         }
+    }
+
+    private var libraryHeader: some View {
+        HStack(spacing: 10) {
+            if isSearchVisible {
+                searchBar
+                    .transition(.opacity.combined(with: .scale(scale: 0.98, anchor: .trailing)))
+            } else {
+                Text("CloudTape")
+                    .font(.largeTitle.weight(.bold))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.72)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .transition(.opacity)
+
+                Button {
+                    revealSearch()
+                } label: {
+                    Image(systemName: "magnifyingglass")
+                        .font(.headline)
+                        .frame(width: 42, height: 42)
+                        .contentShape(Circle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("検索")
+
+                libraryMenu
+            }
+        }
+        .padding(.horizontal, 20)
+        .padding(.top, 18)
+        .padding(.bottom, 10)
+        .background(Color(.systemBackground))
+        .animation(.spring(response: 0.28, dampingFraction: 0.88), value: isSearchVisible)
     }
 
     private var contentBottomPadding: CGFloat {
@@ -268,32 +287,7 @@ struct LibraryView: View {
         }
     }
 
-    private var pullSearchDetector: some View {
-        GeometryReader { proxy in
-            Color.clear
-                .preference(
-                    key: PullSearchOffsetKey.self,
-                    value: proxy.frame(in: .named("LibraryList")).minY
-                )
-        }
-        .frame(height: 1)
-        .listRowInsets(EdgeInsets())
-        .listRowSeparator(.hidden)
-        .accessibilityHidden(true)
-    }
-
-    private var pullSearchGesture: some Gesture {
-        DragGesture(minimumDistance: 24)
-            .onEnded { value in
-                guard !isSearchVisible else { return }
-                guard libraryListTopOffset >= -4 else { return }
-                guard value.translation.height > 70 else { return }
-                guard abs(value.translation.height) > abs(value.translation.width) * 1.4 else { return }
-                revealSearch()
-            }
-    }
-
-    private var searchRow: some View {
+    private var searchBar: some View {
         HStack(spacing: 8) {
             Image(systemName: "magnifyingglass")
                 .foregroundStyle(.secondary)
@@ -316,8 +310,6 @@ struct LibraryView: View {
         .padding(.horizontal, 12)
         .padding(.vertical, 10)
         .background(.thinMaterial, in: Capsule())
-        .listRowSeparator(.hidden)
-        .listRowInsets(EdgeInsets(top: 8, leading: 20, bottom: 8, trailing: 20))
     }
 
     private var noSearchResultsRow: some View {
@@ -476,12 +468,4 @@ struct LibraryView: View {
         searchText = DemoLaunchOptions.current.searchQuery
     }
 #endif
-}
-
-private struct PullSearchOffsetKey: PreferenceKey {
-    static var defaultValue: CGFloat = 0
-
-    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-        value = nextValue()
-    }
 }
