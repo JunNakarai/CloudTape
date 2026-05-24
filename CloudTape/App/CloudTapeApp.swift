@@ -30,25 +30,42 @@ struct DemoLaunchOptions {
 
 @main
 struct CloudTapeApp: App {
+    @Environment(\.scenePhase) private var scenePhase
+    @AppStorage(AppSettingsKey.restoreLastPlayback) private var restoreLastPlayback = false
+    @AppStorage(AppSettingsKey.rescanLibraryOnLaunch) private var rescanLibraryOnLaunch = true
+    @AppStorage(AppSettingsKey.theme) private var themeRawValue = AppTheme.system.rawValue
     @StateObject private var library = MusicLibrary()
     @StateObject private var player = AudioPlayer()
+
+    private var preferredColorScheme: ColorScheme? {
+        (AppTheme(rawValue: themeRawValue) ?? .system).colorScheme
+    }
 
     var body: some Scene {
         WindowGroup {
             LibraryView()
                 .environmentObject(library)
                 .environmentObject(player)
+                .preferredColorScheme(preferredColorScheme)
                 .onAppear {
                     player.configureSession()
 #if DEBUG
                     if let demoFolderURL = DemoLaunchOptions.current.folderURL {
                         library.loadFolder(demoFolderURL)
-                    } else {
+                    } else if rescanLibraryOnLaunch {
                         library.restoreLastFolder()
                     }
 #else
-                    library.restoreLastFolder()
+                    if rescanLibraryOnLaunch {
+                        library.restoreLastFolder()
+                    }
 #endif
+                }
+                .onChange(of: scenePhase) { _, phase in
+                    guard restoreLastPlayback else { return }
+                    if phase == .inactive || phase == .background {
+                        player.persistCurrentPlaybackState()
+                    }
                 }
         }
     }

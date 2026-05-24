@@ -4,13 +4,16 @@ import UniformTypeIdentifiers
 struct LibraryView: View {
     @EnvironmentObject private var library: MusicLibrary
     @EnvironmentObject private var player: AudioPlayer
+    @AppStorage(AppSettingsKey.restoreLastPlayback) private var restoreLastPlayback = false
     @State private var isImportingFolder = false
+    @State private var isSettingsPresented = false
     @State private var isSearchVisible = false
     @State private var searchText = ""
     @State private var isPlayerExpanded = false
     @State private var playerDragTranslation: CGFloat = 0
     @State private var playbackMessage: String?
     @State private var informationMessage: String?
+    @State private var didRestoreLastPlayback = false
     @FocusState private var isSearchFieldFocused: Bool
 #if DEBUG
     @State private var didStartDemoPlayback = false
@@ -34,9 +37,6 @@ struct LibraryView: View {
                             isExpanded: isPlayerExpanded,
                             expansionProgress: playerExpansionProgress,
                             maximumExpandedHeight: max(420, geometry.size.height - 110),
-                            playRandomTrack: {
-                                startRandomPlayback(from: library.tracks)
-                            },
                             toggleExpanded: togglePlayerExpansion
                         )
                         .environmentObject(player)
@@ -62,6 +62,7 @@ struct LibraryView: View {
             .navigationTitle("CloudTape")
             .navigationBarTitleDisplayMode(.large)
             .onChange(of: library.tracks) { _, tracks in
+                restorePlaybackIfNeeded(from: tracks)
 #if DEBUG
                 startDemoPlaybackIfNeeded(from: tracks)
                 showDemoSearchIfNeeded(from: tracks)
@@ -114,6 +115,9 @@ struct LibraryView: View {
                 Button("OK", role: .cancel) {}
             } message: {
                 Text(informationMessage ?? "")
+            }
+            .sheet(isPresented: $isSettingsPresented) {
+                SettingsView()
             }
         }
     }
@@ -180,9 +184,10 @@ struct LibraryView: View {
                     systemName: "shuffle",
                     size: 52,
                     iconSize: 20,
-                    accessibilityLabel: "ランダムに次の曲を再生"
+                    accessibilityLabel: player.mode == .shuffled ? "シャッフルをオフ" : "シャッフルをオン",
+                    isActive: player.mode == .shuffled
                 ) {
-                    startRandomPlayback(from: library.tracks)
+                    player.toggleShuffle()
                 }
                 .transition(.scale(scale: 0.82, anchor: .bottomTrailing).combined(with: .opacity))
             }
@@ -198,16 +203,17 @@ struct LibraryView: View {
         size: CGFloat,
         iconSize: CGFloat,
         accessibilityLabel: String,
+        isActive: Bool = false,
         action: @escaping () -> Void
     ) -> some View {
         Button(action: action) {
             Image(systemName: systemName)
                 .font(.system(size: iconSize, weight: .bold))
-                .foregroundStyle(Color.black.opacity(0.88))
+                .foregroundStyle(isActive ? Color.white : Color.black.opacity(0.88))
                 .frame(width: size, height: size)
                 .background {
                     Circle()
-                        .fill(Color.white.opacity(0.96))
+                        .fill(isActive ? Color.accentColor : Color.white.opacity(0.96))
                         .shadow(color: .black.opacity(0.24), radius: 14, x: 0, y: 7)
                         .shadow(color: .black.opacity(0.12), radius: 3, x: 0, y: 1)
                 }
@@ -225,17 +231,10 @@ struct LibraryView: View {
                 Label("フォルダを追加", systemImage: "folder.badge.plus")
             }
 
-            Button {
-                reloadLibrary()
-            } label: {
-                Label("ライブラリを再読み込み", systemImage: "arrow.clockwise")
-            }
-            .disabled(library.folderURL == nil)
-
             Divider()
 
             Button {
-                informationMessage = "設定画面は今後のアップデートで追加予定です。"
+                isSettingsPresented = true
             } label: {
                 Label("設定", systemImage: "gearshape")
             }
@@ -387,16 +386,18 @@ struct LibraryView: View {
         return true
     }
 
-    private func reloadLibrary() {
-        guard let folderURL = library.folderURL else { return }
-        library.loadFolder(folderURL)
-    }
-
     private func revealSearch() {
         isSearchVisible = true
         Task { @MainActor in
             isSearchFieldFocused = true
         }
+    }
+
+    private func restorePlaybackIfNeeded(from tracks: [Track]) {
+        guard restoreLastPlayback else { return }
+        guard !didRestoreLastPlayback, !tracks.isEmpty else { return }
+        didRestoreLastPlayback = true
+        player.restoreLastPlayback(in: tracks)
     }
 
     private func dismissSearch() {

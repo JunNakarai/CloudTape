@@ -145,6 +145,10 @@ final class AudioPlayer: ObservableObject {
         }
     }
 
+    func persistCurrentPlaybackState() {
+        savePlaybackState()
+    }
+
     private func setShuffleEnabled(_ isEnabled: Bool) {
         mode = isEnabled ? .shuffled : .ordered
         userDefaults.set(isEnabled, forKey: shuffleEnabledKey)

@@ -6,7 +6,6 @@ struct PlayerBar: View {
     let isExpanded: Bool
     let expansionProgress: CGFloat
     let maximumExpandedHeight: CGFloat
-    let playRandomTrack: () -> Void
     let toggleExpanded: () -> Void
     @State private var collapsedSwipeOffset: CGFloat = 0
 
@@ -246,16 +245,17 @@ struct PlayerBar: View {
 
     private var shuffleButton: some View {
         Button {
-            playRandomTrack()
+            player.toggleShuffle()
         } label: {
             Image(systemName: "shuffle")
                 .font(.system(size: 22, weight: .semibold))
-                .foregroundStyle(Color.white.opacity(0.74))
+                .foregroundStyle(player.mode == .shuffled ? Color.accentColor : Color.white.opacity(0.74))
                 .frame(width: 40, height: 40)
         }
         .buttonStyle(.plain)
         .disabled(player.currentTrack == nil)
-        .accessibilityLabel("ランダムに次の曲を再生")
+        .accessibilityLabel(player.mode == .shuffled ? "シャッフルをオフ" : "シャッフルをオン")
+        .accessibilityValue(player.mode == .shuffled ? "オン" : "オフ")
     }
 
     private var expandedTransportControls: some View {
