@@ -32,3 +32,17 @@ targets:
         TARGETED_DEVICE_FAMILY: 1
         CODE_SIGN_STYLE: Automatic
         DEVELOPMENT_TEAM: MU94BSN9Y3
+schemes:
+  CloudTape:
+    build:
+      targets:
+        CloudTape: all
+    run:
+      config: Debug
+      storeKitConfiguration: Configuration/CloudTape.storekit
+    profile:
+      config: Release
+    analyze:
+      config: Debug
+    archive:
+      config: Release

@@ -1,0 +1,37 @@
+{
+  "identifier" : "B6A3DF3D-1A39-4F8C-B9EE-08F68E2CEB30",
+  "products" : [
+    {
+      "displayPrice" : "0.99",
+      "familyShareable" : false,
+      "internalID" : "0D5A4C9A-53E2-42FD-8AB8-09F7A7A3C168",
+      "localizations" : [
+        {
+          "description" : "CloudTape の開発継続を応援できます。",
+          "displayName" : "☕ コーヒー1杯分で応援",
+          "locale" : "ja_JP"
+        },
+        {
+          "description" : "Support continued development of CloudTape.",
+          "displayName" : "Support CloudTape with a coffee",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "cloudtape.coffee.small",
+      "referenceName" : "CloudTape Coffee Support",
+      "type" : "Consumable"
+    }
+  ],
+  "settings" : {
+    "_askToBuyEnabled" : false,
+    "_billingGracePeriodEnabled" : false,
+    "_failTransactionsEnabled" : false,
+    "_locale" : "ja_JP",
+    "_storefront" : "JPN",
+    "_timeRate" : 1
+  },
+  "version" : {
+    "major" : 4,
+    "minor" : 0
+  }
+}

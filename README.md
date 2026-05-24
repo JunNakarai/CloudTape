@@ -71,6 +71,23 @@ The build script uses `/private/tmp/cloudtape-derived` for DerivedData so build 
 
 More development notes are in `docs/DEVELOPMENT.md`.
 
+## In-App Purchase
+
+CloudTape includes an optional consumable support item. It does not unlock additional features.
+
+- Product ID: `cloudtape.coffee.small`
+- Type: Consumable
+- Display name: `☕ コーヒー1杯分で応援`
+- StoreKit test configuration: `Configuration/CloudTape.storekit`
+
+Before App Store distribution, create the same Consumable product in App Store Connect:
+
+1. Open App Store Connect > Apps > CloudTape > In-App Purchases.
+2. Create a Consumable product with Product ID `cloudtape.coffee.small`.
+3. Set the display name to `☕ コーヒー1杯分で応援`.
+4. Set the description to `CloudTape の開発継続を応援できます。`.
+5. Configure pricing, localization, screenshot/review notes as required, then submit it with the app version.
+
 ## Release Materials
 
 - `docs/app-store-metadata.md`

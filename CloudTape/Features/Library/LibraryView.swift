@@ -7,6 +7,7 @@ struct LibraryView: View {
     @AppStorage(AppSettingsKey.restoreLastPlayback) private var restoreLastPlayback = false
     @State private var isImportingFolder = false
     @State private var isSettingsPresented = false
+    @State private var isSupportPresented = false
     @State private var isSearchPresented = false
     @State private var searchText = ""
     @State private var isPlayerExpanded = false
@@ -131,6 +132,9 @@ struct LibraryView: View {
             .sheet(isPresented: $isSettingsPresented) {
                 SettingsView()
             }
+            .sheet(isPresented: $isSupportPresented) {
+                SupportDevelopmentView()
+            }
         }
     }
 
@@ -237,6 +241,12 @@ struct LibraryView: View {
             }
 
             Divider()
+
+            Button {
+                isSupportPresented = true
+            } label: {
+                Label("開発を応援する", systemImage: "cup.and.saucer")
+            }
 
             Button {
                 isSettingsPresented = true
