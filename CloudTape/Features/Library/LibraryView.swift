@@ -7,14 +7,13 @@ struct LibraryView: View {
     @AppStorage(AppSettingsKey.restoreLastPlayback) private var restoreLastPlayback = false
     @State private var isImportingFolder = false
     @State private var isSettingsPresented = false
-    @State private var isSearchVisible = false
+    @State private var isSearchPresented = false
     @State private var searchText = ""
     @State private var isPlayerExpanded = false
     @State private var playerDragTranslation: CGFloat = 0
     @State private var playbackMessage: String?
     @State private var informationMessage: String?
     @State private var didRestoreLastPlayback = false
-    @FocusState private var isSearchFieldFocused: Bool
 #if DEBUG
     @State private var didStartDemoPlayback = false
     @State private var didShowDemoSearch = false
@@ -24,11 +23,8 @@ struct LibraryView: View {
         NavigationStack {
             GeometryReader { geometry in
                 ZStack(alignment: .bottom) {
-                    VStack(spacing: 0) {
-                        libraryHeader
-                        libraryContent
-                    }
-                    .blur(radius: 8 * playerExpansionProgress)
+                    libraryContent
+                        .blur(radius: 8 * playerExpansionProgress)
 
                     Color.black
                         .opacity(0.18 * playerExpansionProgress)
@@ -62,13 +58,32 @@ struct LibraryView: View {
                         .animation(.spring(response: 0.34, dampingFraction: 0.82), value: player.currentTrack?.id)
                 }
             }
-            .toolbar(.hidden, for: .navigationBar)
+            .navigationTitle("CloudTape")
+            .navigationBarTitleDisplayMode(.large)
             .onChange(of: library.tracks) { _, tracks in
                 restorePlaybackIfNeeded(from: tracks)
 #if DEBUG
                 startDemoPlaybackIfNeeded(from: tracks)
                 showDemoSearchIfNeeded(from: tracks)
 #endif
+            }
+            .onChange(of: isSearchPresented) { _, isPresented in
+                if !isPresented {
+                    searchText = ""
+                }
+            }
+            .modifier(LibrarySearchModifier(searchText: $searchText, isPresented: $isSearchPresented))
+            .toolbar {
+                ToolbarItemGroup(placement: .topBarTrailing) {
+                    Button {
+                        isSearchPresented = true
+                    } label: {
+                        Image(systemName: "magnifyingglass")
+                    }
+                    .accessibilityLabel("検索")
+
+                    libraryMenu
+                }
             }
             .fileImporter(
                 isPresented: $isImportingFolder,
@@ -150,40 +165,6 @@ struct LibraryView: View {
             .listStyle(.plain)
             .safeAreaPadding(.bottom, contentBottomPadding)
         }
-    }
-
-    private var libraryHeader: some View {
-        HStack(spacing: 10) {
-            if isSearchVisible {
-                searchBar
-                    .transition(.opacity.combined(with: .scale(scale: 0.98, anchor: .trailing)))
-            } else {
-                Text("CloudTape")
-                    .font(.largeTitle.weight(.bold))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.72)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .transition(.opacity)
-
-                Button {
-                    revealSearch()
-                } label: {
-                    Image(systemName: "magnifyingglass")
-                        .font(.headline)
-                        .frame(width: 42, height: 42)
-                        .contentShape(Circle())
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel("検索")
-
-                libraryMenu
-            }
-        }
-        .padding(.horizontal, 20)
-        .padding(.top, 18)
-        .padding(.bottom, 10)
-        .background(Color(.systemBackground))
-        .animation(.spring(response: 0.28, dampingFraction: 0.88), value: isSearchVisible)
     }
 
     private var contentBottomPadding: CGFloat {
@@ -287,31 +268,6 @@ struct LibraryView: View {
         }
     }
 
-    private var searchBar: some View {
-        HStack(spacing: 8) {
-            Image(systemName: "magnifyingglass")
-                .foregroundStyle(.secondary)
-
-            TextField("CloudTapeを検索", text: $searchText)
-                .textInputAutocapitalization(.never)
-                .autocorrectionDisabled()
-                .focused($isSearchFieldFocused)
-                .submitLabel(.search)
-
-            Button {
-                dismissSearch()
-            } label: {
-                Image(systemName: "xmark.circle.fill")
-                    .foregroundStyle(.secondary)
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel("検索を閉じる")
-        }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 10)
-        .background(.thinMaterial, in: Capsule())
-    }
-
     private var noSearchResultsRow: some View {
         ContentUnavailableView {
             Label("見つかりません", systemImage: "magnifyingglass")
@@ -408,24 +364,11 @@ struct LibraryView: View {
         return true
     }
 
-    private func revealSearch() {
-        isSearchVisible = true
-        Task { @MainActor in
-            isSearchFieldFocused = true
-        }
-    }
-
     private func restorePlaybackIfNeeded(from tracks: [Track]) {
         guard restoreLastPlayback else { return }
         guard !didRestoreLastPlayback, !tracks.isEmpty else { return }
         didRestoreLastPlayback = true
         player.restoreLastPlayback(in: tracks)
-    }
-
-    private func dismissSearch() {
-        searchText = ""
-        isSearchVisible = false
-        isSearchFieldFocused = false
     }
 
     private func playSampleAudio() {
@@ -464,8 +407,26 @@ struct LibraryView: View {
         guard !didShowDemoSearch, !tracks.isEmpty else { return }
 
         didShowDemoSearch = true
-        isSearchVisible = true
+        isSearchPresented = true
         searchText = DemoLaunchOptions.current.searchQuery
     }
 #endif
+}
+
+private struct LibrarySearchModifier: ViewModifier {
+    @Binding var searchText: String
+    @Binding var isPresented: Bool
+
+    func body(content: Content) -> some View {
+        if isPresented {
+            content.searchable(
+                text: $searchText,
+                isPresented: $isPresented,
+                placement: .navigationBarDrawer(displayMode: .automatic),
+                prompt: "CloudTapeを検索"
+            )
+        } else {
+            content
+        }
+    }
 }
