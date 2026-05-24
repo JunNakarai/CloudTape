@@ -14,6 +14,7 @@ struct LibraryView: View {
     @State private var playbackMessage: String?
     @State private var informationMessage: String?
     @State private var didRestoreLastPlayback = false
+    @State private var libraryListTopOffset: CGFloat = 0
     @FocusState private var isSearchFieldFocused: Bool
 #if DEBUG
     @State private var didStartDemoPlayback = false
@@ -134,6 +135,8 @@ struct LibraryView: View {
             )
         } else {
             List {
+                pullSearchDetector
+
                 if isSearchVisible {
                     searchRow
                 }
@@ -156,9 +159,11 @@ struct LibraryView: View {
             }
             .listStyle(.plain)
             .safeAreaPadding(.bottom, contentBottomPadding)
-            .refreshable {
-                revealSearch()
+            .coordinateSpace(name: "LibraryList")
+            .onPreferenceChange(PullSearchOffsetKey.self) { offset in
+                libraryListTopOffset = offset
             }
+            .simultaneousGesture(pullSearchGesture)
         }
     }
 
@@ -261,6 +266,31 @@ struct LibraryView: View {
                 || track.artist?.localizedCaseInsensitiveContains(query) == true
                 || track.album?.localizedCaseInsensitiveContains(query) == true
         }
+    }
+
+    private var pullSearchDetector: some View {
+        GeometryReader { proxy in
+            Color.clear
+                .preference(
+                    key: PullSearchOffsetKey.self,
+                    value: proxy.frame(in: .named("LibraryList")).minY
+                )
+        }
+        .frame(height: 1)
+        .listRowInsets(EdgeInsets())
+        .listRowSeparator(.hidden)
+        .accessibilityHidden(true)
+    }
+
+    private var pullSearchGesture: some Gesture {
+        DragGesture(minimumDistance: 24)
+            .onEnded { value in
+                guard !isSearchVisible else { return }
+                guard libraryListTopOffset >= -4 else { return }
+                guard value.translation.height > 70 else { return }
+                guard abs(value.translation.height) > abs(value.translation.width) * 1.4 else { return }
+                revealSearch()
+            }
     }
 
     private var searchRow: some View {
@@ -446,4 +476,12 @@ struct LibraryView: View {
         searchText = DemoLaunchOptions.current.searchQuery
     }
 #endif
+}
+
+private struct PullSearchOffsetKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = nextValue()
+    }
 }
