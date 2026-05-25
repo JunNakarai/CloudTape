@@ -4,7 +4,7 @@ These files are synthetic demo assets for CloudTape screenshots. They are not co
 
 The track metadata is intentionally short and screenshot-friendly:
 
-- Artist: `YouTube Audio Library`
+- Artist: `CloudTape Demo Studio`
 - Album: `CloudTape Sessions`
 - Titles: `First Noel`, `Hey Sailor`, `Shaken`
 

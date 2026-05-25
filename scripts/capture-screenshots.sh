@@ -117,6 +117,11 @@ launch_app() {
   fi
 }
 
+set_appearance() {
+  local appearance="$1"
+  xcrun simctl ui "$SIMCTL_TARGET" appearance "$appearance" >/dev/null
+}
+
 capture_state() {
   local filename="$1"
   shift
@@ -194,15 +199,29 @@ if ! find "$DEMO_CONTAINER_DIR" -maxdepth 1 -type f -name '*.mp3' | grep -q .; t
 fi
 
 BASE_ARGS=(-CloudTapeDemoFolder "$DEMO_CONTAINER_DIR")
+SCREENSHOTS=(
+  "$OUTPUT_DIR/iphone-01-library.png"
+  "$OUTPUT_DIR/iphone-02-mini-player.png"
+  "$OUTPUT_DIR/iphone-03-full-player.png"
+  "$OUTPUT_DIR/iphone-04-search.png"
+  "$OUTPUT_DIR/iphone-05-empty-state.png"
+  "$OUTPUT_DIR/iphone-06-dark-mode.png"
+)
 
+rm -f "${SCREENSHOTS[@]}"
+
+set_appearance light
 capture_state "iphone-01-library.png" "${BASE_ARGS[@]}"
 capture_state "iphone-02-mini-player.png" "${BASE_ARGS[@]}" -CloudTapeDemoAutoplay
 capture_state "iphone-03-full-player.png" "${BASE_ARGS[@]}" -CloudTapeDemoAutoplay -CloudTapeDemoExpandPlayer
 capture_state "iphone-04-search.png" "${BASE_ARGS[@]}" -CloudTapeDemoShowSearch -CloudTapeDemoSearchQuery "Sailor"
-capture_state "iphone-05-folder-state.png" -CloudTapeDemoFolder "$EMPTY_CONTAINER_DIR"
+capture_state "iphone-05-empty-state.png" -CloudTapeDemoFolder "$EMPTY_CONTAINER_DIR"
+set_appearance dark
+capture_state "iphone-06-dark-mode.png" "${BASE_ARGS[@]}" -CloudTapeDemoAutoplay -CloudTapeDemoExpandPlayer
+set_appearance light
 
 info "Validating App Store screenshot sizes"
-for screenshot in "$OUTPUT_DIR"/iphone-*.png; do
+for screenshot in "${SCREENSHOTS[@]}"; do
   validate_size "$screenshot"
 done
 

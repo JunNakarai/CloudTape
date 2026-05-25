@@ -50,18 +50,26 @@ Show the unsupported or empty-folder state with the folder action visible.
 
 Caption idea: Clear guidance when a folder is empty
 
-### 7. Dark Mode
+### 7. Dark Mode Playback
 
-Show the library or expanded player in Dark Mode. Prefer active playback, not a blank state.
+Show the expanded player or mini-player in Dark Mode with active playback.
 
 Caption idea: Calm in Light and Dark Mode
 
+### 8. Optional alternate library angle
+
+If App Store Connect requires more variety, capture a second library angle with different visible tracks or mini-player state.
+
+Caption idea: Your library stays close at hand
+
 ## Device Coverage
 
-- iPhone 6.9-inch display
-- iPhone 6.5-inch display if required by App Store Connect
-- iPhone 5.5-inch display if required by App Store Connect
+- Submit the generated iPhone 6.5-inch display set at `1242 x 2688`.
+- Apple App Store Connect accepts 6.5-inch screenshots when a 6.9-inch set is not provided (verified from Apple's specification page on 2026-05-25).
+- Keep one to ten final iPhone screenshots; this plan produces six.
 - Do not prepare iPad screenshots unless iPad support is intentionally enabled later
+
+Reference: https://developer.apple.com/help/app-store-connect/reference/screenshot-specifications
 
 ## Capture Checklist
 

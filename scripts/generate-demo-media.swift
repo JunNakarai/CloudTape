@@ -143,6 +143,7 @@ for (index, track) in tracks.enumerated() {
     try drawArtwork(for: track, to: artURL)
 
     try run(ffmpegPath(), [
+        "-nostdin",
         "-y",
         "-f", "lavfi",
         "-i", "sine=frequency=\(track.frequency):duration=74",
@@ -154,7 +155,7 @@ for (index, track) in tracks.enumerated() {
         "-c:v", "mjpeg",
         "-id3v2_version", "3",
         "-metadata", "title=\(track.title)",
-        "-metadata", "artist=YouTube Audio Library",
+        "-metadata", "artist=CloudTape Demo Studio",
         "-metadata", "album=CloudTape Sessions",
         "-metadata", "track=\(index + 1)",
         "-disposition:v", "attached_pic",

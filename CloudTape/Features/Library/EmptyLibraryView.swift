@@ -16,7 +16,7 @@ struct EmptyLibraryView: View {
                     .buttonStyle(.borderedProminent)
 
                 if let trySampleAudio {
-                    Button("Try Sample Audio", action: trySampleAudio)
+                    Button("サンプル音源を試す", action: trySampleAudio)
                         .buttonStyle(.bordered)
                 }
             }
