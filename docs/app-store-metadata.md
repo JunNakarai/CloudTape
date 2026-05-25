@@ -13,7 +13,7 @@
 - Support URL: https://junnakarai.github.io/CloudTape/support.html
 - Privacy Policy URL: https://junnakarai.github.io/CloudTape/privacy-policy.html
 - Marketing URL: https://junnakarai.github.io/CloudTape/
-- App Store URL: TODO: add the public App Store URL after the listing URL is confirmed.
+- App Store URL: TODO after launch. Add the public App Store URL once the listing is live; this is not a pre-submission blocker.
 
 ## Positioning
 

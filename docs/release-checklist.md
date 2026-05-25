@@ -1,113 +1,110 @@
-# CloudTape v1.0 Release Checklist
+# CloudTape Release Checklist
 
-## Build
+This file is the quick release gate.
 
-- Confirm `MARKETING_VERSION` is `1.0.0`.
-- Confirm `CURRENT_PROJECT_VERSION` is incremented for each upload.
-- Generate the Xcode project after `project.yml` edits.
-- Build Debug for simulator.
-- Build Release for generic iOS device.
-- Archive in Xcode with automatic signing.
-- Validate archive before upload.
+For the full handoff plan with App Store Connect sequencing, manual steps, and dependency order, use:
+- `docs/appstore/submission-plan.md`
 
-## First Launch
+## Current repo-backed status
 
-- Launch with no previous folder selected.
-- Confirm the no-folder state is calm and actionable.
-- Choose an iCloud Drive music folder.
-- Quit and relaunch.
-- Confirm folder access restores from the security-scoped bookmark.
-- Move or revoke folder access and confirm the app asks the user to choose again.
+- [x] Version in source is `1.0.0`
+- [x] Build in source is `1`
+- [x] Bundle ID is `io.github.junnakarai.cloudtape`
+- [x] Minimum OS is iOS 17.0
+- [x] Device family is iPhone-only (`TARGETED_DEVICE_FAMILY = 1`)
+- [x] Background audio capability is declared in `Info.plist`
+- [x] Export compliance key declares no non-exempt encryption (`ITSAppUsesNonExemptEncryption = false`)
+- [x] App Store metadata drafts exist in `docs/appstore/`
+- [x] Review-note draft exists in `docs/appstore/app-review-notes.md`
+- [x] Review demo asset exists in `docs/review-assets/`
+- [x] Local simulator build passed
+- [x] Local unsigned Release archive passed with effective metadata `1.0.0 (1)`, iPhone-only, iOS 17.0
+- [x] No account system, ads, analytics SDK, or tracking found in reviewed source
+- [x] No obvious privacy-permission usage strings found for the current feature set
 
-## Library States
+## Submission blockers still requiring human work
 
-- Empty folder shows an intentional empty state.
-- Folder with unsupported files only shows an intentional empty state.
-- Folder with Japanese filenames scans and sorts correctly.
-- Folder with very long filenames does not break row layout.
-- Large folder opens without UI freeze severe enough to feel broken.
-- Search works with title, artist, album, Japanese text, and partial matches.
+### Submission candidate decisions
+- [x] Keep the shipped first-launch empty-state copy
+- [x] Use the App Review shortcut label `サンプル音源を試す`
+- [x] Include the optional support IAP `cloudtape.coffee.small` in 1.0.0
 
-## iCloud Behavior
+### Screenshots
+- [x] Finalize screenshot selection and order
+- [x] Generate and visually inspect the final `1242 x 2688` iPhone 6.5-inch screenshot set
+- [ ] Upload screenshots to the 1.0.0 app version
 
-- Select a folder containing files already downloaded locally.
-- Select a folder containing iCloud files not yet downloaded.
-- Confirm CloudTape requests downloads and shows syncing context.
-- Try playback before a file finishes downloading and confirm the failure state is graceful.
-- Disable network temporarily and confirm unavailable iCloud files do not crash playback.
-- Confirm already-downloaded files still play offline.
+Current repo screenshot candidates:
+- `docs/screenshots/iphone-01-library.png`
+- `docs/screenshots/iphone-02-mini-player.png`
+- `docs/screenshots/iphone-03-full-player.png`
+- `docs/screenshots/iphone-04-search.png`
+- `docs/screenshots/iphone-05-empty-state.png`
+- `docs/screenshots/iphone-06-dark-mode.png`
 
-## Playback
+Apple App Store Connect screenshot specifications checked on 2026-05-25:
+- One to ten screenshots are accepted.
+- `1242 x 2688` portrait images are accepted for the iPhone 6.5-inch display group.
+- The 6.5-inch set is required only when a 6.9-inch set is not provided; this submission uses the accepted 6.5-inch set.
+- Source: https://developer.apple.com/help/app-store-connect/reference/screenshot-specifications
 
-- Start shuffle playback from the main play button.
-- Start playback from a selected track.
-- Pause and resume from the mini player.
-- Use next and previous controls.
-- Seek within a track.
-- Let a track finish and confirm the next track starts.
-- Confirm playback failure does not crash the app.
-- Confirm missing files show a useful message.
+### App Store Connect metadata
+- [ ] Enter localized metadata from `docs/appstore/metadata-ja-JP.md`
+- [ ] Enter localized metadata from `docs/appstore/metadata-en-US.md`
+- [ ] Enter release notes from `docs/appstore/release-notes.md`
+- [ ] Confirm category, age rating, and URLs
 
-## Background Audio
+### In-app purchase
+- [ ] Create or verify consumable IAP `cloudtape.coffee.small`
+- [ ] Add required localizations, pricing, and review screenshot/notes
+- [ ] Link/submit the IAP with app version 1.0.0 if required
 
-- Start playback, lock the device, and confirm audio continues.
-- Confirm Lock Screen metadata updates.
-- Confirm Lock Screen play, pause, next, previous, and seek controls work.
-- Confirm Control Center controls work.
-- Confirm AirPods or headphone play/pause controls work.
-- Confirm app returns cleanly from background to foreground.
-- Confirm playback state remains accurate after interruption.
+### Privacy / compliance
+- [ ] Complete App Privacy questionnaire in App Store Connect
+- [x] Declare no non-exempt encryption in the candidate build
+- [ ] Confirm export compliance answer in App Store Connect if prompted
+- [ ] Confirm no tracking / no ads / no analytics answers remain accurate
 
-## Devices And Layout
+### Signed build and upload
+- [x] Verify a local unsigned archive from current source (`/private/tmp/cloudtape-submission-archive/CloudTape.xcarchive`)
+- [ ] Install or create an Apple Distribution signing identity (only Apple Development is currently present on this Mac)
+- [ ] Create signed archive from Xcode Organizer
+- [ ] Validate archive in Organizer
+- [ ] Upload build to App Store Connect
+- [ ] Wait for build processing
+- [ ] Attach processed build to version 1.0.0
 
-- Test a small iPhone.
-- Test a large iPhone.
-- Confirm App Store Connect still recognizes the app as iPhone-only.
-- Do not add iPad screenshots unless iPad support is intentionally enabled later.
-- Test Dark Mode.
-- Test Light Mode.
-- Confirm mini player and expanded player do not cover important content.
-- Confirm touch targets feel comfortable.
+### App Review and final QA
+- [ ] Paste review notes from `docs/appstore/app-review-notes.md`
+- [ ] Confirm review notes match shipped UI labels exactly
+- [ ] Run final manual QA on folder selection, playback, search, background audio, and review shortcut
+- [ ] Submit for review
 
-## Performance
+## Quick manual QA pass
 
-- Test a small library under 50 tracks.
-- Test a medium library around 500 tracks.
-- Test a large library above 2,000 tracks if available.
-- Watch memory during scan and playback.
-- Watch battery during 30 minutes of background playback.
-- Confirm artwork loading does not cause repeated hangs.
+- [ ] First launch with no folder selected
+- [ ] `サンプル音源を試す` works
+- [ ] Choose folder from iCloud Drive / Files
+- [ ] Relaunch restores folder bookmark
+- [ ] Search works with Japanese and English metadata
+- [ ] Shuffle playback works
+- [ ] Mini player expand/collapse works
+- [ ] Lock Screen / Control Center controls work
+- [ ] Light Mode and Dark Mode look correct
+- [ ] iCloud-not-downloaded / unavailable-file messaging is clear
 
-## Privacy
+## Notes
 
-- Confirm no Firebase dependency.
-- Confirm no analytics framework.
-- Confirm no advertising SDK.
-- Confirm no account system.
-- Confirm no app-initiated network requests for tracking, analytics, ads, or recommendations.
-- Confirm App Privacy answers are "Data Not Collected".
-- Publish `docs/privacy-policy.md` through the support or GitHub Pages URL.
+- Missing public App Store URL is not a submission blocker; add it to docs after launch.
+- Do not use an older uploaded build if device-family metadata looks wrong; upload a newly signed archive from the current source.
+- Do not prepare iPad screenshots unless device support changes from iPhone-only.
 
-## App Store Connect
+## Commands already run during release prep
 
-- App name: CloudTape.
-- Subtitle: Music from iCloud Drive.
-- Primary category: Music.
-- Age rating: 4+.
-- Price: Free for initial release.
-- Add privacy policy URL.
-- Add support URL.
-- Upload screenshots for required iPhone sizes.
-- Do not add iPad screenshots unless iPad support is intentionally enabled later.
-- Add TestFlight beta notes focused on folder selection, shuffle playback, background playback, and iCloud sync delays.
-
-## TestFlight Notes
-
-Ask testers to verify:
-
-- They can select an iCloud Drive music folder.
-- Shuffle starts quickly.
-- Background playback continues after locking the phone.
-- AirPods and Lock Screen controls work.
-- iCloud-only files either play after syncing or fail gracefully.
-- The app feels simple and calm.
+```sh
+git status --short --branch
+./scripts/capture-screenshots.sh
+security find-identity -v -p codesigning
+xcodebuild -project CloudTape.xcodeproj -scheme CloudTape -configuration Release -destination 'generic/platform=iOS' -derivedDataPath /private/tmp/cloudtape-submission-derived -archivePath /private/tmp/cloudtape-submission-archive/CloudTape.xcarchive CODE_SIGNING_ALLOWED=NO archive
+plutil -p /private/tmp/cloudtape-submission-archive/CloudTape.xcarchive/Info.plist
+```

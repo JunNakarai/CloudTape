@@ -7,6 +7,7 @@
 - Bundle ID: `io.github.junnakarai.cloudtape`
 - Target device family: iPhone (`TARGETED_DEVICE_FAMILY = 1`)
 - Minimum OS: iOS 17.0
+- Export compliance: no non-exempt encryption (`ITSAppUsesNonExemptEncryption = false`)
 
 ## v1.0.0 Release Note Draft
 
@@ -49,9 +50,12 @@ xcodebuild \
   -scheme CloudTape \
   -configuration Release \
   -destination 'generic/platform=iOS' \
-  -archivePath /private/tmp/cloudtape-iphone-only-archives/CloudTape.xcarchive \
+  -derivedDataPath /private/tmp/cloudtape-submission-derived \
+  -archivePath /private/tmp/cloudtape-submission-archive/CloudTape.xcarchive \
   CODE_SIGNING_ALLOWED=NO \
   archive
 ```
 
-For App Store Connect, create or distribute a newly signed Release archive from Xcode Organizer using the existing Apple Distribution setup, then upload that new build. Do not reuse an older uploaded build, because its device-family metadata can still require iPad screenshots.
+Verified on 2026-05-25: the unsigned archive contains bundle ID `io.github.junnakarai.cloudtape`, version `1.0.0 (1)`, iPhone-only device family, iOS 17.0 minimum OS, and `ITSAppUsesNonExemptEncryption = false`.
+
+For App Store Connect, install or create an Apple Distribution identity in Xcode, create a newly signed Release archive, then validate and upload it from Organizer. Only an Apple Development identity was available on this Mac during local verification. Do not reuse an older uploaded build, because its version/device-family metadata may differ from the current candidate.

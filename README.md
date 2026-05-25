@@ -91,6 +91,7 @@ Before App Store distribution, create the same Consumable product in App Store C
 ## Release Materials
 
 - `docs/app-store-metadata.md`
+- `docs/appstore/`
 - `docs/privacy-policy.md`
 - `docs/privacy-policy.html`
 - `docs/support.html`
