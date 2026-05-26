@@ -2,34 +2,29 @@
 
 ## Current Build Metadata
 
-- Version: 1.0.0
-- Build: 1
+- Version: 1.0.1
+- Build: 4
 - Bundle ID: `io.github.junnakarai.cloudtape`
 - Target device family: iPhone (`TARGETED_DEVICE_FAMILY = 1`)
 - Minimum OS: iOS 17.0
 - Export compliance: no non-exempt encryption (`ITSAppUsesNonExemptEncryption = false`)
 
-## v1.0.0 Release Note Draft
+## v1.0.1 Release Note Draft
 
-CloudTape 1.0.0 is the first public release.
+CloudTape 1.0.1 is a maintenance update prepared from the latest committed source.
 
-- Play audio files stored in iCloud Drive or the Files app.
-- Choose a folder and start shuffle playback quickly.
-- Browse/search the selected library.
-- Continue playback in the background.
-- Control playback from the Lock Screen, Control Center, and headphones.
-- Use a focused mini player and expanded Now Playing screen.
-- Keep listening private with no accounts, analytics, advertising, or CloudTape server.
+- Includes minor playback experience refinements.
+- Maintains private playback with no accounts, analytics, advertising, or CloudTape server.
 
-## v1.0.0 Tag And GitHub Release Commands
+## v1.0.1 Tag And GitHub Release Commands
 
 Do not run these until the final App Store listing URL and release notes are confirmed:
 
 ```sh
 git status --short --branch
-git tag -a v1.0.0 -m "CloudTape v1.0.0"
-git push origin v1.0.0
-gh release create v1.0.0 --title "CloudTape v1.0.0" --notes-file RELEASE.md
+git tag -a v1.0.1 -m "CloudTape v1.0.1"
+git push origin v1.0.1
+gh release create v1.0.1 --title "CloudTape v1.0.1" --notes-file RELEASE.md
 ```
 
 ## App Store Connect Device Family
@@ -56,6 +51,6 @@ xcodebuild \
   archive
 ```
 
-Verified on 2026-05-25: the unsigned archive contains bundle ID `io.github.junnakarai.cloudtape`, version `1.0.0 (1)`, iPhone-only device family, iOS 17.0 minimum OS, and `ITSAppUsesNonExemptEncryption = false`.
+The current update candidate must be archived with bundle ID `io.github.junnakarai.cloudtape`, version `1.0.1 (4)`, iPhone-only device family, iOS 17.0 minimum OS, and `ITSAppUsesNonExemptEncryption = false`.
 
-For App Store Connect, install or create an Apple Distribution identity in Xcode, create a newly signed Release archive, then validate and upload it from Organizer. Only an Apple Development identity was available on this Mac during local verification. Do not reuse an older uploaded build, because its version/device-family metadata may differ from the current candidate.
+For App Store Connect, create a newly signed Release archive, then validate and upload it. An Apple Distribution identity was available on this Mac on 2026-05-26. Do not reuse an older uploaded build, because its version/device-family metadata may differ from the current candidate.

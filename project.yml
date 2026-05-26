@@ -5,8 +5,8 @@ options:
     iOS: "17.0"
 settings:
   base:
-    MARKETING_VERSION: "1.0.0"
-    CURRENT_PROJECT_VERSION: "1"
+    MARKETING_VERSION: "1.0.1"
+    CURRENT_PROJECT_VERSION: "4"
 targets:
   CloudTape:
     type: application
@@ -17,6 +17,9 @@ targets:
       path: CloudTape/SupportingFiles/Info.plist
       properties:
         CFBundleDisplayName: CloudTape
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        ITSAppUsesNonExemptEncryption: false
         UILaunchScreen: {}
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
