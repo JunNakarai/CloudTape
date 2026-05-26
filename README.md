@@ -77,6 +77,7 @@ CloudTape includes an optional consumable support item. It does not unlock addit
 
 - Product ID: `cloudtape.coffee.small`
 - Type: Consumable
+- Intended Japan price: `¥160`
 - Display name: `☕ コーヒー1杯分で応援`
 - StoreKit test configuration: `Configuration/CloudTape.storekit`
 

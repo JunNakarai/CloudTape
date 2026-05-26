@@ -4,6 +4,7 @@
 CloudTape 1.0.1 includes small improvements and updated release configuration.
 
 - Minor playback experience refinements.
+- Improved completion handling for the optional support purchase.
 - The same private listening experience with no account, ads, or analytics.
 
 ## Short Version

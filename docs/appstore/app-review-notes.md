@@ -26,6 +26,7 @@ CloudTape does not require an account.
 - The optional in-app purchase `cloudtape.coffee.small` is a voluntary consumable support item.
 - It does not unlock features.
 - It does not change app behavior.
+- Because it is consumable and grants no restorable entitlement, there is no Restore Purchases action.
 
 ## Privacy / business model note
 

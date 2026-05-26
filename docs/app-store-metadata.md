@@ -2,8 +2,8 @@
 
 ## Current Release
 
-- Version: 1.0.0
-- Build: 1
+- Version: 1.0.1
+- Build: 5
 - Platform: iPhone
 - Minimum OS: iOS 17.0
 - Bundle ID: `io.github.junnakarai.cloudtape`
@@ -13,7 +13,7 @@
 - Support URL: https://junnakarai.github.io/CloudTape/support.html
 - Privacy Policy URL: https://junnakarai.github.io/CloudTape/privacy-policy.html
 - Marketing URL: https://junnakarai.github.io/CloudTape/
-- App Store URL: TODO after launch. Add the public App Store URL once the listing is live; this is not a pre-submission blocker.
+- App Store URL: https://apps.apple.com/us/app/cloudtape/id6770509865
 
 ## Positioning
 

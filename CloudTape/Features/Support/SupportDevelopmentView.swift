@@ -3,7 +3,7 @@ import SwiftUI
 
 struct SupportDevelopmentView: View {
     @Environment(\.dismiss) private var dismiss
-    @StateObject private var store = SupportDevelopmentStore()
+    @ObservedObject var store: SupportDevelopmentStore
 
     var body: some View {
         NavigationStack {
@@ -57,6 +57,12 @@ struct SupportDevelopmentView: View {
 
                     if let errorMessage = store.errorMessage {
                         Text(errorMessage)
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                    }
+
+                    if let statusMessage = store.statusMessage {
+                        Text(statusMessage)
                             .font(.footnote)
                             .foregroundStyle(.secondary)
                     }

@@ -5,6 +5,7 @@ struct LibraryView: View {
     @EnvironmentObject private var library: MusicLibrary
     @EnvironmentObject private var player: AudioPlayer
     @AppStorage(AppSettingsKey.restoreLastPlayback) private var restoreLastPlayback = false
+    @StateObject private var supportStore = SupportDevelopmentStore()
     @State private var isImportingFolder = false
     @State private var isSettingsPresented = false
     @State private var isSupportPresented = false
@@ -133,7 +134,7 @@ struct LibraryView: View {
                 SettingsView()
             }
             .sheet(isPresented: $isSupportPresented) {
-                SupportDevelopmentView()
+                SupportDevelopmentView(store: supportStore)
             }
         }
     }
