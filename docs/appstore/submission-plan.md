@@ -1,14 +1,14 @@
 # CloudTape App Store Submission Plan
 
-This document is the handoff for taking CloudTape 1.0.1 with its optional support purchase to App Store submission-ready.
+This document is the handoff for taking CloudTape 1.0.2 with its optional support purchase to App Store submission-ready.
 
 It is intentionally ordered by dependency so the next person can work top-to-bottom without guessing what unlocks what.
 
 ## Current repo-backed status
 
 Already prepared in the repository:
-- App version: `1.0.1`
-- Build number in source: `5`
+- App version: `1.0.2`
+- Build number in source: `6`
 - Bundle ID: `io.github.junnakarai.cloudtape`
 - Minimum OS: iOS 17.0
 - Device family: iPhone only (`TARGETED_DEVICE_FAMILY = 1`)
@@ -18,13 +18,13 @@ Already prepared in the repository:
 - Review demo asset and review-note drafts exist under `docs/appstore/` and `docs/review-assets/`
 - App Store metadata drafts exist for `ja-JP` and `en-US`
 - Final six screenshots have been generated and visually reviewed at `1242 x 2688` for the accepted iPhone 6.5-inch group
-- App Store Connect currently has `1.0.1 (4)` submitted without an In-App Purchase item; the StoreKit completion update requires build `5`.
+- App Store Connect currently has `1.0.1 (4)` as distribution-ready without an In-App Purchase item. The support purchase submission requires a new app version, `1.0.2 (6)`.
 
 Still requires App Store Connect/release work:
 - Create and complete the first In-App Purchase record.
-- Add IAP review metadata and link it with the 1.0.1 app-version submission.
-- Upload and select signed build `1.0.1 (5)`.
-- Replace the current app-only review submission with the app plus IAP submission.
+- Add IAP review metadata and link it with the 1.0.2 app-version submission.
+- Upload and select signed build `1.0.2 (6)`.
+- Submit the new app version plus IAP together.
 
 ## Submission order
 
@@ -33,7 +33,7 @@ Still requires App Store Connect/release work:
 Frozen decisions for this candidate:
 - Keep the first-launch empty-state UI copy in the current source.
 - Use the review shortcut button label `サンプル音源を試す`.
-- Ship the optional support IAP `cloudtape.coffee.small` in 1.0.1.
+- Ship the optional support IAP `cloudtape.coffee.small` in 1.0.2.
 - Do not make further UI string or layout changes after final screenshot capture.
 
 Why first:
@@ -81,7 +81,7 @@ Repo sources:
 - `docs/appstore/release-notes.md`
 
 Manual tasks:
-1. Update the 1.0.1 app version record.
+1. Create or update the 1.0.2 app version record.
 2. Enter localized metadata for at least:
    - Japanese (`ja-JP`)
    - English (`en-US`)
@@ -122,7 +122,7 @@ Manual tasks:
    - It is optional.
    - It does not unlock features.
    - It does not change app behavior.
-7. Submit the first IAP together with app version 1.0.1, as required for an app's first IAP.
+7. Submit the first IAP together with app version 1.0.2, as required for an app's first IAP.
 
 Dependency note:
 - If the IAP is not fully configured, submission can stall even if the app binary is ready.
@@ -148,17 +148,17 @@ Manual App Store Connect tasks:
 
 Already established:
 - The previously signed and uploaded `1.0.1 (4)` proved App Store upload signing is available on this Mac.
-- Build `5` is required after the StoreKit completion handling improvement.
+- Build `6` is required because `1.0.1` is already distribution-ready with build `4`.
 
 Remaining:
-1. Verify the Release archive metadata for build `1.0.1 (5)`.
-2. Archive and upload a signed build `5`.
+1. Verify the Release archive metadata for build `1.0.2 (6)`.
+2. Archive and upload a signed build `6`.
 3. Wait for App Store Connect processing to finish.
-4. Attach processed build `5` to version `1.0.1`.
+4. Attach processed build `6` to version `1.0.2`.
 
 Critical checks during Organizer validation:
 - Bundle ID is still `io.github.junnakarai.cloudtape`
-- Version/build shown by Organizer match `1.0.1 (5)`
+- Version/build shown by Organizer match `1.0.2 (6)`
 - Device support still resolves as iPhone-only
 - No unexpected entitlements or capabilities appear
 
@@ -215,18 +215,18 @@ Submit only after all of the following are true:
 
 ## Remaining blockers, in true dependency order
 
-1. Keep the already entered 1.0.1 metadata and screenshots attached
+1. Create the 1.0.2 app version and copy/confirm metadata and screenshots
 2. IAP creation/completion in App Store Connect
 3. Privacy/compliance questionnaire completion in App Store Connect
-4. Signed build 5 archive creation, validation, and upload
-5. Build processing + attaching build 5 to version 1.0.1
-6. Replace the app-only submission with version 1.0.1 plus the IAP
+4. Signed build 6 archive creation, validation, and upload
+5. Build processing + attaching build 6 to version 1.0.2
+6. Submit version 1.0.2 plus the IAP
 
 ## Recommended next human actions
 
 If only one focused work session is available, do this exact sequence:
 1. Create/finish the IAP in App Store Connect.
-2. Confirm the existing 1.0.1 metadata and screenshots remain attached.
+2. Create or confirm the 1.0.2 metadata and screenshots.
 3. Complete the privacy questionnaire.
-4. Archive and upload signed build 5.
-5. Attach build 5, paste updated review notes, and submit the app version together with the IAP.
+4. Archive and upload signed build 6.
+5. Attach build 6, paste updated review notes, and submit the app version together with the IAP.

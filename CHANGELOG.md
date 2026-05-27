@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.2] - 2026-05-28
+
+Maintenance update candidate for the optional support purchase submission.
+
+### Changed
+- Prepare a new App Store version after 1.0.1 became distribution-ready with build 4.
+- Carry forward StoreKit completion handling for the consumable support purchase.
+
 ## [1.0.1] - 2026-05-26
 
 Maintenance update candidate built from the latest committed app state.
