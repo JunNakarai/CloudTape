@@ -5,6 +5,9 @@ This file is the quick release gate.
 For the full handoff plan with App Store Connect sequencing, manual steps, and dependency order, use:
 - `docs/appstore/submission-plan.md`
 
+For the Guideline 2.1(b) IAP rejection investigation and resubmission checklist, use:
+- `docs/appstore/iap-review-investigation.md`
+
 ## Current repo-backed status
 
 - [x] Version in source is `1.0.2`
@@ -62,6 +65,7 @@ Apple App Store Connect screenshot specifications checked on 2026-05-25:
 - [x] Verify user cancellation returns without an error state in StoreKit Configuration
 - [x] Verify Ask to Buy pending state and approved completion through `Transaction.updates`
 - [x] Verify unavailable-product loading displays retry and error UI
+- [x] Surface product-fetch, purchase, cancellation, and transaction-verification states in the support screen
 - [ ] Verify simulated purchase failure path in StoreKit Configuration
 - [ ] Verify network-offline product loading behavior
 

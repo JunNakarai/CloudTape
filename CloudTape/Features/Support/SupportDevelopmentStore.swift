@@ -4,6 +4,7 @@ import StoreKit
 @MainActor
 final class SupportDevelopmentStore: ObservableObject {
     static let coffeeSmallProductID = "cloudtape.coffee.small"
+    static let productIDs: Set<String> = [coffeeSmallProductID]
 
     @Published private(set) var product: Product?
     @Published private(set) var isLoading = false
@@ -40,14 +41,14 @@ final class SupportDevelopmentStore: ObservableObject {
         defer { isLoading = false }
 
         do {
-            let products = try await Product.products(for: [Self.coffeeSmallProductID])
+            let products = try await Product.products(for: Self.productIDs)
             product = products.first { $0.id == Self.coffeeSmallProductID }
 
             if product == nil {
-                errorMessage = "応援アイテムを取得できませんでした。時間をおいてもう一度お試しください。"
+                errorMessage = Self.productUnavailableMessage
             }
         } catch {
-            errorMessage = "応援アイテムを取得できませんでした。時間をおいてもう一度お試しください。"
+            errorMessage = Self.productLoadFailureMessage(error)
         }
     }
 
@@ -56,7 +57,10 @@ final class SupportDevelopmentStore: ObservableObject {
             await loadProduct()
         }
 
-        guard let product else { return }
+        guard let product else {
+            errorMessage = Self.productUnavailableMessage
+            return
+        }
 
         isPurchasing = true
         message = nil
@@ -73,12 +77,12 @@ final class SupportDevelopmentStore: ObservableObject {
             case .pending:
                 statusMessage = "購入は保留中です。完了すると App Store から通知されます。"
             case .userCancelled:
-                break
+                statusMessage = "購入はキャンセルされました。"
             @unknown default:
                 errorMessage = "購入を完了できませんでした。時間をおいてもう一度お試しください。"
             }
         } catch {
-            errorMessage = "購入を完了できませんでした。時間をおいてもう一度お試しください。"
+            errorMessage = Self.purchaseFailureMessage(error)
         }
     }
 
@@ -86,7 +90,7 @@ final class SupportDevelopmentStore: ObservableObject {
         do {
             try await completeCoffeeSupportPurchase(verification)
         } catch {
-            errorMessage = "購入を確認できませんでした。時間をおいてもう一度お試しください。"
+            errorMessage = Self.transactionVerificationFailureMessage(error)
         }
     }
 
@@ -108,8 +112,31 @@ final class SupportDevelopmentStore: ObservableObject {
             throw StoreError.unverifiedTransaction
         }
     }
+
+    private static var productUnavailableMessage: String {
+        "応援アイテムを取得できませんでした。App Store Connect の Product ID、IAP の提出状態、販売国/地域を確認してください。"
+    }
+
+    private static func productLoadFailureMessage(_ error: Error) -> String {
+        "応援アイテムを取得できませんでした: \(error.localizedDescription)"
+    }
+
+    private static func purchaseFailureMessage(_ error: Error) -> String {
+        "購入を完了できませんでした: \(error.localizedDescription)"
+    }
+
+    private static func transactionVerificationFailureMessage(_ error: Error) -> String {
+        "購入を確認できませんでした: \(error.localizedDescription)"
+    }
 }
 
-private enum StoreError: Error {
+private enum StoreError: LocalizedError {
     case unverifiedTransaction
+
+    var errorDescription: String? {
+        switch self {
+        case .unverifiedTransaction:
+            "App Store の取引を検証できませんでした。"
+        }
+    }
 }
