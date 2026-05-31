@@ -45,12 +45,11 @@ jobs:
           fi
 
           DEVICE_ID="$(xcrun simctl create CloudTape-CI "$DEVICE_TYPE_ID" "$RUNTIME_ID")"
-          xcrun simctl boot "$DEVICE_ID" || true
-          xcrun simctl bootstatus "$DEVICE_ID" -b
 
           xcodebuild \
             -project CloudTape.xcodeproj \
             -scheme CloudTape \
             -destination "platform=iOS Simulator,id=$DEVICE_ID" \
+            -destination-timeout 120 \
             -derivedDataPath "$RUNNER_TEMP/cloudtape-test-derived" \
             test
