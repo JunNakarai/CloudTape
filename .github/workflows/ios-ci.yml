@@ -31,7 +31,7 @@ jobs:
         run: |
           set -euo pipefail
           RUNTIME_ID="$(xcrun simctl list runtimes available |
-            awk -F'[()]' '/iOS/ { runtime=$2 } END { if (runtime != "") print runtime }')"
+            awk '/iOS/ { runtime=$NF } END { if (runtime != "") print runtime }')"
           DEVICE_TYPE_ID="$(xcrun simctl list devicetypes |
             awk -F'[()]' '
               /iPhone/ { fallback=$2 }
