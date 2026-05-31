@@ -35,6 +35,16 @@ targets:
         TARGETED_DEVICE_FAMILY: 1
         CODE_SIGN_STYLE: Automatic
         DEVELOPMENT_TEAM: MU94BSN9Y3
+  CloudTapeTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: CloudTapeTests
+    dependencies:
+      - target: CloudTape
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
 schemes:
   CloudTape:
     build:
@@ -43,6 +53,10 @@ schemes:
     run:
       config: Debug
       storeKitConfiguration: Configuration/CloudTape.storekit
+    test:
+      config: Debug
+      targets:
+        - CloudTapeTests
     profile:
       config: Release
     analyze:

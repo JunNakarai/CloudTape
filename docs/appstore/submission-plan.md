@@ -8,7 +8,7 @@ It is intentionally ordered by dependency so the next person can work top-to-bot
 
 Already prepared in the repository:
 - App version: `1.0.2`
-- Build number in source: `6`
+- Build number in source: `7`
 - Bundle ID: `io.github.junnakarai.cloudtape`
 - Minimum OS: iOS 17.0
 - Device family: iPhone only (`TARGETED_DEVICE_FAMILY = 1`)
@@ -18,12 +18,12 @@ Already prepared in the repository:
 - Review demo asset and review-note drafts exist under `docs/appstore/` and `docs/review-assets/`
 - App Store metadata drafts exist for `ja-JP` and `en-US`
 - Final six screenshots have been generated and visually reviewed at `1242 x 2688` for the accepted iPhone 6.5-inch group
-- App Store Connect currently has `1.0.1 (4)` as distribution-ready without an In-App Purchase item. The support purchase submission requires a new app version, `1.0.2 (6)`.
+- App Store Connect currently has `1.0.1 (4)` as distribution-ready without an In-App Purchase item. The support purchase submission requires a new app version, `1.0.2 (7)`.
 
-Still requires App Store Connect/release work:
+Still requires App Store Connect work:
 - Create and complete the first In-App Purchase record.
 - Add IAP review metadata and link it with the 1.0.2 app-version submission.
-- Upload and select signed build `1.0.2 (6)`.
+- Wait for signed build `1.0.2 (7)` processing and select it for the version.
 - Submit the new app version plus IAP together.
 
 ## Submission order
@@ -92,12 +92,11 @@ Manual tasks:
    - Support URL
    - Privacy Policy URL
    - Marketing URL
-6. Ignore the public App Store URL placeholder for now.
-   - That URL is only known after the listing exists publicly.
-   - It is not a blocker for submission.
+6. Confirm the public App Store URL remains:
+   - https://apps.apple.com/us/app/cloudtape/id6770509865
 
 Recommended product decision:
-- Treat the missing public App Store URL as a post-launch documentation follow-up, not a pre-submission blocker.
+- Keep the public App Store URL synchronized across README, metadata, and the public site after each release.
 
 ## 4. Set up the in-app purchase in App Store Connect
 
@@ -144,21 +143,20 @@ Manual App Store Connect tasks:
 4. Complete advertising identifier / tracking questions accurately.
    - Expected answer: no tracking / no ads / no third-party analytics.
 
-## 6. Create the signed archive and upload the build
+## 6. Select the processed signed build
 
 Already established:
 - The previously signed and uploaded `1.0.1 (4)` proved App Store upload signing is available on this Mac.
-- Build `6` is required because `1.0.1` is already distribution-ready with build `4`.
+- Build `7` is required because `1.0.1` is already distribution-ready with build `4`.
+- Build `1.0.2 (7)` has already been archived, validated, and uploaded from the current source.
 
 Remaining:
-1. Verify the Release archive metadata for build `1.0.2 (6)`.
-2. Archive and upload a signed build `6`.
-3. Wait for App Store Connect processing to finish.
-4. Attach processed build `6` to version `1.0.2`.
+1. Wait for App Store Connect processing to finish.
+2. Attach processed build `7` to version `1.0.2`.
 
 Critical checks during Organizer validation:
 - Bundle ID is still `io.github.junnakarai.cloudtape`
-- Version/build shown by Organizer match `1.0.2 (6)`
+- Version/build shown by Organizer match `1.0.2 (7)`
 - Device support still resolves as iPhone-only
 - No unexpected entitlements or capabilities appear
 
@@ -218,9 +216,8 @@ Submit only after all of the following are true:
 1. Create the 1.0.2 app version and copy/confirm metadata and screenshots
 2. IAP creation/completion in App Store Connect
 3. Privacy/compliance questionnaire completion in App Store Connect
-4. Signed build 6 archive creation, validation, and upload
-5. Build processing + attaching build 6 to version 1.0.2
-6. Submit version 1.0.2 plus the IAP
+4. Build processing + attaching build 7 to version 1.0.2
+5. Submit version 1.0.2 plus the IAP
 
 ## Recommended next human actions
 
@@ -228,5 +225,4 @@ If only one focused work session is available, do this exact sequence:
 1. Create/finish the IAP in App Store Connect.
 2. Create or confirm the 1.0.2 metadata and screenshots.
 3. Complete the privacy questionnaire.
-4. Archive and upload signed build 6.
-5. Attach build 6, paste updated review notes, and submit the app version together with the IAP.
+4. Attach build 7, paste updated review notes, and submit the app version together with the IAP.

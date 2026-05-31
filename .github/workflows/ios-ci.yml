@@ -26,3 +26,24 @@ jobs:
             -destination 'generic/platform=iOS Simulator' \
             -derivedDataPath "$RUNNER_TEMP/cloudtape-derived" \
             build
+
+      - name: Test on iOS Simulator
+        run: |
+          set -euo pipefail
+          DESTINATION="$(xcodebuild \
+            -project CloudTape.xcodeproj \
+            -scheme CloudTape \
+            -showdestinations |
+            awk -F'[{}]' '/platform:iOS Simulator/ && /name:iPhone/ { print $2; exit }')"
+
+          if [ -z "$DESTINATION" ]; then
+            echo "No iOS Simulator destination found."
+            exit 1
+          fi
+
+          xcodebuild \
+            -project CloudTape.xcodeproj \
+            -scheme CloudTape \
+            -destination "{$DESTINATION}" \
+            -derivedDataPath "$RUNNER_TEMP/cloudtape-test-derived" \
+            test

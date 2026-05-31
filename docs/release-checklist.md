@@ -11,7 +11,7 @@ For the Guideline 2.1(b) IAP rejection investigation and resubmission checklist,
 ## Current repo-backed status
 
 - [x] Version in source is `1.0.2`
-- [x] Build in source is `6`
+- [x] Build in source is `7`
 - [x] Bundle ID is `io.github.junnakarai.cloudtape`
 - [x] Minimum OS is iOS 17.0
 - [x] Device family is iPhone-only (`TARGETED_DEVICE_FAMILY = 1`)
@@ -21,7 +21,7 @@ For the Guideline 2.1(b) IAP rejection investigation and resubmission checklist,
 - [x] Review-note draft exists in `docs/appstore/app-review-notes.md`
 - [x] Review demo asset exists in `docs/review-assets/`
 - [x] Local simulator build passed
-- [x] Local unsigned Release archive passes with effective metadata `1.0.2 (6)`, iPhone-only, iOS 17.0
+- [x] Local unsigned Release archive passes with effective metadata `1.0.2 (7)`, iPhone-only, iOS 17.0
 - [x] No account system, ads, analytics SDK, or tracking found in reviewed source
 - [x] No obvious privacy-permission usage strings found for the current feature set
 
@@ -105,7 +105,7 @@ Apple App Store Connect screenshot specifications checked on 2026-05-25:
 
 ## Notes
 
-- Missing public App Store URL is not a submission blocker; add it to docs after launch.
+- Public App Store URL is documented in README and metadata.
 - Do not use an older uploaded build if device-family metadata looks wrong; upload a newly signed archive from the current source.
 - Do not prepare iPad screenshots unless device support changes from iPhone-only.
 

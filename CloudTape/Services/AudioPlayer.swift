@@ -154,13 +154,7 @@ final class AudioPlayer: ObservableObject {
     }
 
     private func rebuildQueue(startingAt track: Track) {
-        switch mode {
-        case .ordered:
-            queue = tracks
-        case .shuffled:
-            let remaining = tracks.filter { $0 != track }.shuffled()
-            queue = [track] + remaining
-        }
+        queue = PlaybackQueueBuilder.queue(for: tracks, startingAt: track, mode: mode)
         currentIndex = queue.firstIndex(of: track) ?? 0
     }
 
@@ -241,6 +235,7 @@ final class AudioPlayer: ObservableObject {
     private func nextAfterFinish() {
         guard currentIndex + 1 < queue.count else {
             isPlaying = false
+            updateNowPlaying()
             return
         }
         if let currentTrack {

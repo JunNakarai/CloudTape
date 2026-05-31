@@ -2,8 +2,8 @@
 
 ## Current Release
 
-- Version: 1.0.1
-- Build: 5
+- Version: 1.0.2
+- Build: 7
 - Platform: iPhone
 - Minimum OS: iOS 17.0
 - Bundle ID: `io.github.junnakarai.cloudtape`

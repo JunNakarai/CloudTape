@@ -3,7 +3,7 @@
 ## Current Build Metadata
 
 - Version: 1.0.2
-- Build: 6
+- Build: 7
 - Bundle ID: `io.github.junnakarai.cloudtape`
 - Target device family: iPhone (`TARGETED_DEVICE_FAMILY = 1`)
 - Minimum OS: iOS 17.0

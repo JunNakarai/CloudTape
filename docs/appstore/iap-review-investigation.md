@@ -13,7 +13,7 @@ The app-side StoreKit2 implementation uses the same product identifier as the lo
 - StoreKit test configuration: `cloudtape.coffee.small`
 - Product type: Consumable
 - Bundle ID: `io.github.junnakarai.cloudtape`
-- Candidate version/build: `1.0.2 (6)`
+- Candidate version/build: `1.0.2 (7)`
 - Device family in build settings: iPhone only (`TARGETED_DEVICE_FAMILY = 1`)
 
 No app-side product ID mismatch was found.
@@ -57,7 +57,7 @@ Evidence:
 - The support purchase UI is presented as a SwiftUI sheet from the library menu and uses `NavigationStack` + `Form`, with no iPad popover-only control.
 
 App Store Connect check:
-- Confirm the processed build selected for review is build `1.0.2 (6)` or newer from this source.
+- Confirm the processed build selected for review is build `1.0.2 (7)` or newer from this source.
 - Confirm App Store Connect does not still show universal/iPad support from an older uploaded build.
 
 ### 4. purchase() call

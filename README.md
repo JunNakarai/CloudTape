@@ -23,14 +23,13 @@ It is built as a quiet personal music space: no ads, no tracking, no accounts, n
 
 Screenshots for the public page and App Store materials are kept in:
 
-- `docs/assets/screenshots/`
 - `docs/screenshots/`
 
 App Store screenshot capture notes are in `docs/screenshot-plan.md`.
 
 ## App Store
 
-- App Store: TODO: add the public App Store URL after the listing URL is confirmed.
+- App Store: https://apps.apple.com/us/app/cloudtape/id6770509865
 - Support: https://junnakarai.github.io/CloudTape/support.html
 - Privacy Policy: https://junnakarai.github.io/CloudTape/privacy-policy.html
 
