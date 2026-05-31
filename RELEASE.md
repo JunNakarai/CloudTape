@@ -52,6 +52,6 @@ xcodebuild \
   archive
 ```
 
-The current update candidate must be archived with bundle ID `io.github.junnakarai.cloudtape`, version `1.0.2 (6)`, iPhone-only device family, iOS 17.0 minimum OS, and `ITSAppUsesNonExemptEncryption = false`.
+The current update candidate must be archived with bundle ID `io.github.junnakarai.cloudtape`, version `1.0.2 (7)`, iPhone-only device family, iOS 17.0 minimum OS, and `ITSAppUsesNonExemptEncryption = false`.
 
 For App Store Connect, create a newly signed Release archive, then validate and upload it. An Apple Distribution identity was available on this Mac on 2026-05-26. Do not reuse an older uploaded build, because its version/device-family metadata may differ from the current candidate.

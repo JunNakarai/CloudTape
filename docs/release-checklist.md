@@ -76,13 +76,13 @@ Apple App Store Connect screenshot specifications checked on 2026-05-25:
 - [ ] Confirm no tracking / no ads / no analytics answers remain accurate
 
 ### Signed build and upload
-- [x] Verify a local unsigned archive from current source for `1.0.2 (6)`
+- [x] Verify a local archive from current source for `1.0.2 (7)`
 - [x] Apple Distribution signing is available for the previously uploaded 1.0.1 build
-- [x] Create signed archive for `1.0.2 (6)`
+- [x] Create archive for `1.0.2 (7)`
 - [x] Validate archive
-- [x] Upload build `1.0.2 (6)` to App Store Connect
-- [x] Wait for build processing
-- [x] Attach processed build 6 to version 1.0.2
+- [x] Upload build `1.0.2 (7)` to App Store Connect
+- [ ] Wait for build 7 processing
+- [ ] Attach processed build 7 to version 1.0.2
 
 ### App Review and final QA
 - [ ] Paste review notes from `docs/appstore/app-review-notes.md`
