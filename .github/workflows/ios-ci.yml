@@ -30,20 +30,27 @@ jobs:
       - name: Test on iOS Simulator
         run: |
           set -euo pipefail
-          DESTINATION="$(xcodebuild \
-            -project CloudTape.xcodeproj \
-            -scheme CloudTape \
-            -showdestinations |
-            awk -F'[{}]' '/platform:iOS Simulator/ && /name:iPhone/ { print $2; exit }')"
+          RUNTIME_ID="$(xcrun simctl list runtimes available |
+            awk -F'[()]' '/iOS/ { runtime=$2 } END { if (runtime != "") print runtime }')"
+          DEVICE_TYPE_ID="$(xcrun simctl list devicetypes |
+            awk -F'[()]' '
+              /iPhone/ { fallback=$2 }
+              /iPhone 16/ { print $2; found=1; exit }
+              END { if (!found && fallback != "") print fallback }
+            ')"
 
-          if [ -z "$DESTINATION" ]; then
-            echo "No iOS Simulator destination found."
+          if [ -z "$RUNTIME_ID" ] || [ -z "$DEVICE_TYPE_ID" ]; then
+            echo "No compatible iOS Simulator runtime/device type found."
             exit 1
           fi
+
+          DEVICE_ID="$(xcrun simctl create CloudTape-CI "$DEVICE_TYPE_ID" "$RUNTIME_ID")"
+          xcrun simctl boot "$DEVICE_ID" || true
+          xcrun simctl bootstatus "$DEVICE_ID" -b
 
           xcodebuild \
             -project CloudTape.xcodeproj \
             -scheme CloudTape \
-            -destination "{$DESTINATION}" \
+            -destination "platform=iOS Simulator,id=$DEVICE_ID" \
             -derivedDataPath "$RUNNER_TEMP/cloudtape-test-derived" \
             test
