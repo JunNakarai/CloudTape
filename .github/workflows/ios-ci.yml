@@ -45,6 +45,8 @@ jobs:
           fi
 
           DEVICE_ID="$(xcrun simctl create CloudTape-CI "$DEVICE_TYPE_ID" "$RUNTIME_ID")"
+          xcrun simctl boot "$DEVICE_ID" || true
+          sleep 15
 
           xcodebuild \
             -project CloudTape.xcodeproj \
