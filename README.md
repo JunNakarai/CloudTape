@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/assets/app-icon.png" alt="CloudTape app icon" width="128">
+</p>
+
 # CloudTape
 
 CloudTape is a minimal iOS music player for playing audio files you already keep in iCloud Drive or the Files app.
