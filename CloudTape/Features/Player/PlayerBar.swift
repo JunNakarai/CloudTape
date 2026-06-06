@@ -324,3 +324,27 @@ private struct PlayerPlayPauseButton: View {
             .contentShape(Circle())
     }
 }
+
+#if DEBUG
+#Preview("Mini Player") {
+    PlayerBar(
+        isExpanded: false,
+        expansionProgress: 0,
+        maximumExpandedHeight: 560,
+        toggleExpanded: {}
+    )
+    .environmentObject(PreviewSampleData.player())
+    .padding()
+}
+
+#Preview("Full Player") {
+    PlayerBar(
+        isExpanded: true,
+        expansionProgress: 1,
+        maximumExpandedHeight: 560,
+        toggleExpanded: {}
+    )
+    .environmentObject(PreviewSampleData.player())
+    .padding()
+}
+#endif

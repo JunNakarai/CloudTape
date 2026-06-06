@@ -3,6 +3,7 @@ import SwiftUI
 #if DEBUG
 struct DemoLaunchOptions {
     let folderURL: URL?
+    let emptyLibrary: Bool
     let autoplay: Bool
     let expandPlayer: Bool
     let showSearch: Bool
@@ -13,6 +14,7 @@ struct DemoLaunchOptions {
     init(arguments: [String]) {
         folderURL = Self.value(after: "-CloudTapeDemoFolder", in: arguments)
             .map { URL(fileURLWithPath: $0, isDirectory: true) }
+        emptyLibrary = arguments.contains("-CloudTapeDemoEmptyLibrary")
         autoplay = arguments.contains("-CloudTapeDemoAutoplay")
         expandPlayer = arguments.contains("-CloudTapeDemoExpandPlayer")
         showSearch = arguments.contains("-CloudTapeDemoShowSearch")
@@ -50,7 +52,9 @@ struct CloudTapeApp: App {
                 .onAppear {
                     player.configureSession()
 #if DEBUG
-                    if let demoFolderURL = DemoLaunchOptions.current.folderURL {
+                    if DemoLaunchOptions.current.emptyLibrary {
+                        return
+                    } else if let demoFolderURL = DemoLaunchOptions.current.folderURL {
                         library.loadFolder(demoFolderURL)
                     } else if rescanLibraryOnLaunch {
                         library.restoreLastFolder()

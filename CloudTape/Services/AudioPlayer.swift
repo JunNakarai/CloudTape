@@ -353,4 +353,17 @@ final class AudioPlayer: ObservableObject {
         guard let seconds, seconds.isFinite, seconds > 0 else { return 0 }
         return seconds
     }
+
+#if DEBUG
+    func loadPreviewTrack(_ track: Track, in allTracks: [Track], isPlaying: Bool = true) {
+        self.tracks = allTracks
+        queue = PlaybackQueueBuilder.queue(for: allTracks, startingAt: track, mode: mode)
+        currentIndex = queue.firstIndex(of: track) ?? 0
+        currentTrack = track
+        currentTime = min(42, sanitizedDuration(track.duration) * 0.35)
+        duration = sanitizedDuration(track.duration)
+        self.isPlaying = isPlaying
+        errorMessage = nil
+    }
+#endif
 }

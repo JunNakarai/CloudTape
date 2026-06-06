@@ -7,6 +7,7 @@ final class DemoLaunchOptionsTests: XCTestCase {
             "CloudTape",
             "-CloudTapeDemoFolder",
             "/tmp/CloudTapeDemo",
+            "-CloudTapeDemoEmptyLibrary",
             "-CloudTapeDemoAutoplay",
             "-CloudTapeDemoExpandPlayer",
             "-CloudTapeDemoShowSearch",
@@ -15,6 +16,7 @@ final class DemoLaunchOptionsTests: XCTestCase {
         ])
 
         XCTAssertEqual(options.folderURL?.path, "/tmp/CloudTapeDemo")
+        XCTAssertTrue(options.emptyLibrary)
         XCTAssertTrue(options.autoplay)
         XCTAssertTrue(options.expandPlayer)
         XCTAssertTrue(options.showSearch)
@@ -25,6 +27,7 @@ final class DemoLaunchOptionsTests: XCTestCase {
         let options = DemoLaunchOptions(arguments: ["CloudTape"])
 
         XCTAssertNil(options.folderURL)
+        XCTAssertFalse(options.emptyLibrary)
         XCTAssertFalse(options.autoplay)
         XCTAssertFalse(options.expandPlayer)
         XCTAssertFalse(options.showSearch)

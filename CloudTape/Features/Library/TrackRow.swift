@@ -28,3 +28,13 @@ struct TrackRow: View {
         .padding(.vertical, 4)
     }
 }
+
+#if DEBUG
+#Preview("Track Row") {
+    List {
+        TrackRow(track: PreviewSampleData.currentTrack, isCurrent: true)
+        TrackRow(track: PreviewSampleData.tracks[1], isCurrent: false)
+    }
+    .listStyle(.plain)
+}
+#endif

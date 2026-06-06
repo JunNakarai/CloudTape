@@ -92,3 +92,44 @@ The simulator can open the Files picker, but it may not have the same iCloud Dri
 ### Device Developer Mode
 
 On a physical iPhone, enable Developer Mode, trust the Mac, and keep the device unlocked during install and launch. If CoreDevice resets the connection, retry the install once.
+
+## Codex iOS Preview
+
+CloudTape is configured for the Codex Build iOS Apps plugin with the
+`cloudtape-ios` XcodeBuildMCP profile in `.xcodebuildmcp/config.yaml`.
+
+Use the Build action or XcodeBuildMCP with:
+
+- project: `CloudTape.xcodeproj`
+- scheme: `CloudTape`
+- configuration: `Debug`
+- destination: `iPhone 17` / iOS 26.5 Simulator
+- bundle ID: `io.github.junnakarai.cloudtape`
+
+For a demo library and mini player, launch with:
+
+```bash
+-CloudTapeDemoFolder /Users/jun/Documents/CloudTape/docs/assets/demo-media -CloudTapeDemoAutoplay
+```
+
+For a deterministic empty library state, launch with:
+
+```bash
+-CloudTapeDemoEmptyLibrary
+```
+
+To mirror the active simulator into the Codex in-app browser:
+
+```bash
+./scripts/preview-simulator-browser.sh
+```
+
+Open the local URL printed by `serve-sim`, usually `http://localhost:3200`.
+
+SwiftUI `#Preview` declarations are available for the main library surface,
+empty state, track row, player bar, status row, and settings screen. The Codex
+SwiftUI preview host currently requires a Swift Package target, so CloudTape's
+app-target previews should be opened from Xcode Canvas; use the simulator mirror
+above for Codex in-browser visual review.
+
+After every UI change, follow the review checklist in `docs/ui-review-loop.md`.

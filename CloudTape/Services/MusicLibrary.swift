@@ -182,6 +182,17 @@ final class MusicLibrary: ObservableObject {
         errorMessage = message
         state = .error(message)
     }
+
+#if DEBUG
+    func loadPreview(tracks: [Track], state: LibraryState = .ready) {
+        scanTask?.cancel()
+        folderURL = URL(fileURLWithPath: "/CloudTape Preview", isDirectory: true)
+        self.tracks = tracks
+        self.state = state
+        pendingDownloadCount = 0
+        errorMessage = nil
+    }
+#endif
 }
 
 enum LibraryState: Equatable {

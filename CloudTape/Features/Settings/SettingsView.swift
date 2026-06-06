@@ -82,3 +82,9 @@ private struct OSSLicensesView: View {
         .navigationBarTitleDisplayMode(.inline)
     }
 }
+
+#if DEBUG
+#Preview("Settings") {
+    SettingsView()
+}
+#endif

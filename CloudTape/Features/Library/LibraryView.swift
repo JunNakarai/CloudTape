@@ -282,16 +282,10 @@ struct LibraryView: View {
     }
 
     private func syncingRow(count: Int) -> some View {
-        Label {
-            Text("\(count)曲をiCloudから同期中")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-        } icon: {
-            Image(systemName: "icloud.and.arrow.down")
-                .foregroundStyle(.blue)
-        }
-        .padding(.vertical, 8)
-        .listRowSeparator(.hidden)
+        StatusRow(
+            message: "\(count)曲をiCloudから同期中",
+            systemImage: "icloud.and.arrow.down"
+        )
     }
 
     private var playerExpansionProgress: CGFloat {
@@ -433,3 +427,17 @@ private struct LibrarySearchModifier: ViewModifier {
         }
     }
 }
+
+#if DEBUG
+#Preview("Library With Mini Player") {
+    LibraryView()
+        .environmentObject(PreviewSampleData.library())
+        .environmentObject(PreviewSampleData.player())
+}
+
+#Preview("Library Empty") {
+    LibraryView()
+        .environmentObject(MusicLibrary())
+        .environmentObject(AudioPlayer(userDefaults: UserDefaults(suiteName: "CloudTapePreviewEmpty") ?? .standard))
+}
+#endif

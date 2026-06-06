@@ -73,3 +73,21 @@ struct EmptyLibraryView: View {
         state != .scanning
     }
 }
+
+#if DEBUG
+#Preview("Empty Library") {
+    EmptyLibraryView(
+        state: .noFolder,
+        chooseFolder: {},
+        trySampleAudio: {}
+    )
+}
+
+#Preview("Syncing Library") {
+    EmptyLibraryView(
+        state: .syncing(8),
+        chooseFolder: {},
+        trySampleAudio: {}
+    )
+}
+#endif
