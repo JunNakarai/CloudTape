@@ -10,7 +10,9 @@
 		15A2A88CB297EDE2F2B75B2D /* SupportDevelopmentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 708A91F735362D5AF18076BC /* SupportDevelopmentView.swift */; };
 		2DC0E0EB1D23C9910E69C552 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 645744C5F3C6D456B1808591 /* SettingsView.swift */; };
 		4129FBB9BB33D528A0404B08 /* AudioPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBB8B0A3E3167BC078572065 /* AudioPlayer.swift */; };
+		4591A128499E2F48831C68CF /* CloudTape.storekit in Resources */ = {isa = PBXBuildFile; fileRef = EBAD1257770BC73905316359 /* CloudTape.storekit */; };
 		4A05C150FEABE6D2B773FB11 /* TrackRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = A185C87B00498B183229F9FE /* TrackRow.swift */; };
+		6F9E40554AADE17A68162B3E /* SupportDevelopmentStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35880C101D63FE8E955884DD /* SupportDevelopmentStoreTests.swift */; };
 		72542CE837E7E33D709419B2 /* MusicLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6997FD15E864B9BC2CE88B5E /* MusicLibrary.swift */; };
 		778C7D94F2792B3A30F2CEF1 /* StatusRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FAEC233DCA6E2C3A5BBE3B7 /* StatusRow.swift */; };
 		850989E379FEB6D97FA5CFAC /* Track.swift in Sources */ = {isa = PBXBuildFile; fileRef = 341A7847C531F4B9679AAAA6 /* Track.swift */; };
@@ -26,8 +28,10 @@
 		CBF29A20CBE4D94C136E75E6 /* TimeFormattingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 642DDF48C85C87749500B734 /* TimeFormattingTests.swift */; };
 		CFF6600159DF978B4D939673 /* EmptyLibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A297E8292374D877B63C986D /* EmptyLibraryView.swift */; };
 		D3DCE3FAE1383F5EF7461E39 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240657BCDDF32B9683308973 /* AppSettings.swift */; };
+		D9AFC3B27FF5C5E2BDF5D79C /* FavoritesStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EBF80E5F3C94E50946CE98C /* FavoritesStore.swift */; };
 		DDA67987906A512C93A8CA3F /* CloudTape-Demo-Audio.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 4212D27CC983C511E82DC972 /* CloudTape-Demo-Audio.m4a */; };
 		E076BC6911DB9F3EE4015A20 /* DemoLaunchOptionsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E67CFBFC3BDE8F6B64405278 /* DemoLaunchOptionsTests.swift */; };
+		E1F541ED9DF436B0FCBD9854 /* FavoritesStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73DE94143A2D0CD9B57270C5 /* FavoritesStoreTests.swift */; };
 		ED0E893A268376271709BABD /* SupportDevelopmentStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 315C7DA21C89AF7E164AA7C5 /* SupportDevelopmentStore.swift */; };
 		EE34F003916481ACC112F738 /* TimeFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C66CEF8E4730A72068F495D /* TimeFormatting.swift */; };
 /* End PBXBuildFile section */
@@ -48,8 +52,10 @@
 		1C66CEF8E4730A72068F495D /* TimeFormatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeFormatting.swift; sourceTree = "<group>"; };
 		240657BCDDF32B9683308973 /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
 		2A4EF0A225940C2A8E29E71B /* PreviewSampleData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewSampleData.swift; sourceTree = "<group>"; };
+		2EBF80E5F3C94E50946CE98C /* FavoritesStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoritesStore.swift; sourceTree = "<group>"; };
 		315C7DA21C89AF7E164AA7C5 /* SupportDevelopmentStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupportDevelopmentStore.swift; sourceTree = "<group>"; };
 		341A7847C531F4B9679AAAA6 /* Track.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Track.swift; sourceTree = "<group>"; };
+		35880C101D63FE8E955884DD /* SupportDevelopmentStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupportDevelopmentStoreTests.swift; sourceTree = "<group>"; };
 		4212D27CC983C511E82DC972 /* CloudTape-Demo-Audio.m4a */ = {isa = PBXFileReference; path = "CloudTape-Demo-Audio.m4a"; sourceTree = "<group>"; };
 		4EAE27B54D803B39BD023A4F /* PlaybackQueueBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaybackQueueBuilder.swift; sourceTree = "<group>"; };
 		4FAEC233DCA6E2C3A5BBE3B7 /* StatusRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusRow.swift; sourceTree = "<group>"; };
@@ -58,6 +64,7 @@
 		645744C5F3C6D456B1808591 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		6997FD15E864B9BC2CE88B5E /* MusicLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MusicLibrary.swift; sourceTree = "<group>"; };
 		708A91F735362D5AF18076BC /* SupportDevelopmentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupportDevelopmentView.swift; sourceTree = "<group>"; };
+		73DE94143A2D0CD9B57270C5 /* FavoritesStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoritesStoreTests.swift; sourceTree = "<group>"; };
 		988ED170F255587CA43FDD02 /* CloudTapeTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = CloudTapeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		9950DE8143B99F0762C2FD98 /* PlaybackQueueBuilderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaybackQueueBuilderTests.swift; sourceTree = "<group>"; };
 		A149CAF99EDB6BFE5D7A33FF /* TrackTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackTests.swift; sourceTree = "<group>"; };
@@ -69,6 +76,7 @@
 		DBB8B0A3E3167BC078572065 /* AudioPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioPlayer.swift; sourceTree = "<group>"; };
 		DD854AB44367C2BF1206D950 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		E67CFBFC3BDE8F6B64405278 /* DemoLaunchOptionsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoLaunchOptionsTests.swift; sourceTree = "<group>"; };
+		EBAD1257770BC73905316359 /* CloudTape.storekit */ = {isa = PBXFileReference; path = CloudTape.storekit; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -120,6 +128,7 @@
 			isa = PBXGroup;
 			children = (
 				DBB8B0A3E3167BC078572065 /* AudioPlayer.swift */,
+				2EBF80E5F3C94E50946CE98C /* FavoritesStore.swift */,
 				6997FD15E864B9BC2CE88B5E /* MusicLibrary.swift */,
 				4EAE27B54D803B39BD023A4F /* PlaybackQueueBuilder.swift */,
 			);
@@ -130,7 +139,9 @@
 			isa = PBXGroup;
 			children = (
 				E67CFBFC3BDE8F6B64405278 /* DemoLaunchOptionsTests.swift */,
+				73DE94143A2D0CD9B57270C5 /* FavoritesStoreTests.swift */,
 				9950DE8143B99F0762C2FD98 /* PlaybackQueueBuilderTests.swift */,
+				35880C101D63FE8E955884DD /* SupportDevelopmentStoreTests.swift */,
 				642DDF48C85C87749500B734 /* TimeFormattingTests.swift */,
 				A149CAF99EDB6BFE5D7A33FF /* TrackTests.swift */,
 			);
@@ -188,6 +199,7 @@
 			children = (
 				0498A714155F1F1D28131BCB /* CloudTape */,
 				54B7FA98BEE5D2E996F0F115 /* CloudTapeTests */,
+				F5F7F21623BA92CBFD2FA5E9 /* Configuration */,
 				9352E48966EE57DD4195080D /* Products */,
 			);
 			sourceTree = "<group>";
@@ -224,6 +236,14 @@
 			path = Resources;
 			sourceTree = "<group>";
 		};
+		F5F7F21623BA92CBFD2FA5E9 /* Configuration */ = {
+			isa = PBXGroup;
+			children = (
+				EBAD1257770BC73905316359 /* CloudTape.storekit */,
+			);
+			path = Configuration;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -250,6 +270,7 @@
 			buildConfigurationList = 067745F441344659390C06ED /* Build configuration list for PBXNativeTarget "CloudTapeTests" */;
 			buildPhases = (
 				B3836794182BDC2EF777D011 /* Sources */,
+				CA54EF5F1CD1A75A580D3112 /* Resources */,
 			);
 			buildRules = (
 			);
@@ -308,6 +329,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		CA54EF5F1CD1A75A580D3112 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4591A128499E2F48831C68CF /* CloudTape.storekit in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -320,6 +349,7 @@
 				4129FBB9BB33D528A0404B08 /* AudioPlayer.swift in Sources */,
 				BC8730EB9BBB9D3576C50844 /* CloudTapeApp.swift in Sources */,
 				CFF6600159DF978B4D939673 /* EmptyLibraryView.swift in Sources */,
+				D9AFC3B27FF5C5E2BDF5D79C /* FavoritesStore.swift in Sources */,
 				B07A6A1A3F8B5D6D630C65B0 /* LibraryView.swift in Sources */,
 				72542CE837E7E33D709419B2 /* MusicLibrary.swift in Sources */,
 				97BB812E90ACDC73B3630AFC /* PlaybackQueueBuilder.swift in Sources */,
@@ -340,7 +370,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				E076BC6911DB9F3EE4015A20 /* DemoLaunchOptionsTests.swift in Sources */,
+				E1F541ED9DF436B0FCBD9854 /* FavoritesStoreTests.swift in Sources */,
 				B840B89CB5F333880158EEFC /* PlaybackQueueBuilderTests.swift in Sources */,
+				6F9E40554AADE17A68162B3E /* SupportDevelopmentStoreTests.swift in Sources */,
 				CBF29A20CBE4D94C136E75E6 /* TimeFormattingTests.swift in Sources */,
 				8B134F46B56F47419EB0C86E /* TrackTests.swift in Sources */,
 			);
@@ -391,7 +423,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 7;
+				CURRENT_PROJECT_VERSION = 9;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -502,7 +534,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 7;
+				CURRENT_PROJECT_VERSION = 9;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;

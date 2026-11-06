@@ -5,6 +5,7 @@ struct LibraryView: View {
     @EnvironmentObject private var library: MusicLibrary
     @EnvironmentObject private var player: AudioPlayer
     @AppStorage(AppSettingsKey.restoreLastPlayback) private var restoreLastPlayback = false
+    @StateObject private var favorites = FavoritesStore()
     @StateObject private var supportStore = SupportDevelopmentStore()
     @State private var isImportingFolder = false
     @State private var isSettingsPresented = false
@@ -159,10 +160,25 @@ struct LibraryView: View {
                     noSearchResultsRow
                 } else {
                     ForEach(displayedTracks) { track in
-                        Button {
-                            player.play(track: track, in: library.tracks)
-                        } label: {
-                            TrackRow(track: track, isCurrent: player.currentTrack == track)
+                        HStack(spacing: 8) {
+                            Button {
+                                player.play(track: track, in: library.tracks)
+                            } label: {
+                                TrackRow(track: track, isCurrent: player.currentTrack?.id == track.id)
+                                    .contentShape(Rectangle())
+                            }
+                            .buttonStyle(.plain)
+
+                            Button {
+                                favorites.toggle(track)
+                            } label: {
+                                Image(systemName: favorites.contains(track) ? "heart.fill" : "heart")
+                                    .foregroundStyle(favorites.contains(track) ? Color.pink : Color.secondary)
+                                    .frame(width: 44, height: 44)
+                            }
+                            .buttonStyle(.borderless)
+                            .accessibilityLabel(favorites.contains(track) ? "お気に入りを解除: \(track.title)" : "お気に入りに追加: \(track.title)")
+                            .accessibilityValue(favorites.contains(track) ? "登録済み" : "未登録")
                         }
                     }
                 }
@@ -262,8 +278,9 @@ struct LibraryView: View {
 
     private var displayedTracks: [Track] {
         let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !query.isEmpty else { return library.tracks }
-        return library.tracks.filter { track in
+        let sortedTracks = favorites.favoritesFirst(library.tracks)
+        guard !query.isEmpty else { return sortedTracks }
+        return sortedTracks.filter { track in
             track.title.localizedCaseInsensitiveContains(query)
                 || track.subtitle.localizedCaseInsensitiveContains(query)
                 || track.artist?.localizedCaseInsensitiveContains(query) == true

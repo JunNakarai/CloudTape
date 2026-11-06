@@ -73,7 +73,10 @@ final class AudioPlayer: ObservableObject {
         tracks = allTracks
         history.removeAll()
 
-        guard let track = allTracks.randomElement() else { return false }
+        let favoritePaths = Set(userDefaults.stringArray(forKey: FavoritesStore.storageKey) ?? [])
+        let preferred = allTracks.filter { favoritePaths.contains($0.url.standardizedFileURL.path) }
+        guard let track = (preferred.isEmpty ? allTracks : preferred).randomElement() else { return false }
+        setShuffleEnabled(true)
         rebuildQueue(startingAt: track)
         playCurrent(autoPlay: true)
         return true
@@ -154,7 +157,7 @@ final class AudioPlayer: ObservableObject {
     }
 
     private func rebuildQueue(startingAt track: Track) {
-        queue = PlaybackQueueBuilder.queue(for: tracks, startingAt: track, mode: mode)
+        queue = PlaybackQueueBuilder.queue(for: tracks, startingAt: track, mode: mode, favoritePaths: Set(userDefaults.stringArray(forKey: FavoritesStore.storageKey) ?? []))
         currentIndex = queue.firstIndex(of: track) ?? 0
     }
 
@@ -357,7 +360,7 @@ final class AudioPlayer: ObservableObject {
 #if DEBUG
     func loadPreviewTrack(_ track: Track, in allTracks: [Track], isPlaying: Bool = true) {
         self.tracks = allTracks
-        queue = PlaybackQueueBuilder.queue(for: allTracks, startingAt: track, mode: mode)
+        queue = PlaybackQueueBuilder.queue(for: allTracks, startingAt: track, mode: mode, favoritePaths: Set(userDefaults.stringArray(forKey: FavoritesStore.storageKey) ?? []))
         currentIndex = queue.firstIndex(of: track) ?? 0
         currentTrack = track
         currentTime = min(42, sanitizedDuration(track.duration) * 0.35)

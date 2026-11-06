@@ -1,4 +1,6 @@
+import Combine
 import Foundation
+import OSLog
 import StoreKit
 
 @MainActor
@@ -13,8 +15,26 @@ final class SupportDevelopmentStore: ObservableObject {
     @Published var statusMessage: String?
     @Published var errorMessage: String?
     private var transactionUpdatesTask: Task<Void, Never>?
+    private var productLoadTask: Task<Void, Never>?
+    private let productLoader: @MainActor () async throws -> [Product]
+    private let purchaseProduct: @MainActor (Product) async throws -> Product.PurchaseResult
+    private let paymentsAllowed: @MainActor () -> Bool
+    private static let logger = Logger(subsystem: "io.github.junnakarai.cloudtape", category: "SupportPurchase")
 
-    init() {
+    init(
+        productLoader: @escaping @MainActor () async throws -> [Product] = {
+            try await Product.products(for: SupportDevelopmentStore.productIDs)
+        },
+        purchaseProduct: @escaping @MainActor (Product) async throws -> Product.PurchaseResult = {
+            try await $0.purchase()
+        },
+        paymentsAllowed: @escaping @MainActor () -> Bool = { AppStore.canMakePayments },
+        observeTransactions: Bool = true
+    ) {
+        self.productLoader = productLoader
+        self.purchaseProduct = purchaseProduct
+        self.paymentsAllowed = paymentsAllowed
+        guard observeTransactions else { return }
         transactionUpdatesTask = Task { [weak self] in
             for await verification in Transaction.unfinished {
                 guard let self else { return }
@@ -30,46 +50,66 @@ final class SupportDevelopmentStore: ObservableObject {
 
     deinit {
         transactionUpdatesTask?.cancel()
+        productLoadTask?.cancel()
     }
 
     func loadProduct() async {
         guard product == nil else { return }
+        if let productLoadTask {
+            await productLoadTask.value
+            return
+        }
 
         isLoading = true
         statusMessage = nil
         errorMessage = nil
-        defer { isLoading = false }
-
-        do {
-            let products = try await Product.products(for: Self.productIDs)
-            product = products.first { $0.id == Self.coffeeSmallProductID }
-
-            if product == nil {
-                errorMessage = Self.productUnavailableMessage
+        let loader = productLoader
+        let task = Task { [weak self] in
+            do {
+                let products = try await loader()
+                guard let self else { return }
+                product = products.first { $0.id == Self.coffeeSmallProductID }
+                if product == nil {
+                    Self.logger.error("Support product was absent from the StoreKit response (count: \(products.count)). Check the paid agreement, product configuration, and storefront in App Store Connect.")
+                    errorMessage = Self.productUnavailableMessage
+                }
+            } catch {
+                guard let self else { return }
+                let nsError = error as NSError
+                Self.logger.error("Support product load failed: \(nsError.domain, privacy: .public) code \(nsError.code)")
+                errorMessage = Self.productLoadFailureMessage(error)
             }
-        } catch {
-            errorMessage = Self.productLoadFailureMessage(error)
         }
+        productLoadTask = task
+        await task.value
+        productLoadTask = nil
+        isLoading = false
     }
 
     func purchaseCoffeeSupport() async {
-        if product == nil {
-            await loadProduct()
-        }
-
-        guard let product else {
-            errorMessage = Self.productUnavailableMessage
+        guard !isPurchasing else { return }
+        message = nil
+        statusMessage = nil
+        errorMessage = nil
+        guard paymentsAllowed() else {
+            errorMessage = "この端末ではApp内課金が許可されていません。スクリーンタイムなどの購入制限を確認してください。"
             return
         }
 
         isPurchasing = true
-        message = nil
-        statusMessage = nil
-        errorMessage = nil
         defer { isPurchasing = false }
 
+        if product == nil {
+            await loadProduct()
+        }
+        guard let product else {
+            // Keep the actual loading error so retry guidance is not lost.
+            if errorMessage == nil { errorMessage = Self.productUnavailableMessage }
+            return
+        }
+
         do {
-            let result = try await product.purchase()
+            let result = try await purchaseProduct(product)
 
             switch result {
             case .success(let verification):
@@ -81,6 +121,8 @@ final class SupportDevelopmentStore: ObservableObject {
             @unknown default:
                 errorMessage = "購入を完了できませんでした。時間をおいてもう一度お試しください。"
             }
+        } catch StoreKitError.userCancelled {
+            statusMessage = "購入はキャンセルされました。"
         } catch {
             errorMessage = Self.purchaseFailureMessage(error)
         }
@@ -114,7 +156,7 @@ final class SupportDevelopmentStore: ObservableObject {
     }
 
     private static var productUnavailableMessage: String {
-        "応援アイテムを取得できませんでした。App Store Connect の Product ID、IAP の提出状態、販売国/地域を確認してください。"
+        "現在、応援アイテムを利用できません。時間をおいて、もう一度読み込んでください。"
     }
 
     private static func productLoadFailureMessage(_ error: Error) -> String {
