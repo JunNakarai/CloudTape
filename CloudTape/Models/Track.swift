@@ -10,8 +10,9 @@ struct Track: Identifiable, Equatable {
     let album: String?
     let duration: TimeInterval?
     let artworkData: Data?
+    var dateAdded: Date? = nil
 
-    static func from(url: URL, root: URL) -> Track {
+    static func from(url: URL, root: URL, dateAdded: Date? = nil) -> Track {
         let relative = url.path.replacingOccurrences(of: root.path + "/", with: "")
         let folder = url.deletingLastPathComponent().lastPathComponent
         return Track(
@@ -22,7 +23,8 @@ struct Track: Identifiable, Equatable {
             artist: nil,
             album: nil,
             duration: nil,
-            artworkData: nil
+            artworkData: nil,
+            dateAdded: dateAdded
         )
     }
 
@@ -50,7 +52,8 @@ struct Track: Identifiable, Equatable {
             artist: artist,
             album: album,
             duration: duration,
-            artworkData: artworkData ?? self.artworkData
+            artworkData: artworkData ?? self.artworkData,
+            dateAdded: dateAdded
         )
     }
 

@@ -5,6 +5,7 @@ struct LibraryView: View {
     @EnvironmentObject private var library: MusicLibrary
     @EnvironmentObject private var player: AudioPlayer
     @AppStorage(AppSettingsKey.restoreLastPlayback) private var restoreLastPlayback = false
+    @AppStorage(AppSettingsKey.librarySortOrder) private var sortOrder = LibrarySortOrder.filename
     @StateObject private var favorites = FavoritesStore()
     @StateObject private var supportStore = SupportDevelopmentStore()
     @State private var isImportingFolder = false
@@ -162,7 +163,7 @@ struct LibraryView: View {
                     ForEach(displayedTracks) { track in
                         HStack(spacing: 8) {
                             Button {
-                                player.play(track: track, in: library.tracks)
+                                player.play(track: track, in: orderedTracks)
                             } label: {
                                 TrackRow(track: track, isCurrent: player.currentTrack?.id == track.id)
                                     .contentShape(Rectangle())
@@ -249,6 +250,16 @@ struct LibraryView: View {
                 Label("フォルダを追加", systemImage: "folder.badge.plus")
             }
 
+            Menu {
+                Picker("並び順", selection: $sortOrder) {
+                    ForEach(LibrarySortOrder.allCases) { order in
+                        Text(order.title).tag(order)
+                    }
+                }
+            } label: {
+                Label("並び順", systemImage: "arrow.up.arrow.down")
+            }
+
             Divider()
 
             Button {
@@ -276,9 +287,13 @@ struct LibraryView: View {
         .accessibilityLabel("ライブラリメニュー")
     }
 
+    private var orderedTracks: [Track] {
+        favorites.favoritesFirst(sortOrder.sorted(library.tracks))
+    }
+
     private var displayedTracks: [Track] {
         let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
-        let sortedTracks = favorites.favoritesFirst(library.tracks)
+        let sortedTracks = orderedTracks
         guard !query.isEmpty else { return sortedTracks }
         return sortedTracks.filter { track in
             track.title.localizedCaseInsensitiveContains(query)
@@ -371,7 +386,7 @@ struct LibraryView: View {
 
     @discardableResult
     private func playRandomTrack() -> Bool {
-        guard player.playRandomTrack(in: library.tracks) else {
+        guard player.playRandomTrack(in: orderedTracks) else {
             playbackMessage = "再生できる曲がありません。"
             return false
         }
@@ -382,7 +397,7 @@ struct LibraryView: View {
         guard restoreLastPlayback else { return }
         guard !didRestoreLastPlayback, !tracks.isEmpty else { return }
         didRestoreLastPlayback = true
-        player.restoreLastPlayback(in: tracks)
+        player.restoreLastPlayback(in: favorites.favoritesFirst(sortOrder.sorted(tracks)))
     }
 
     private func playSampleAudio() {

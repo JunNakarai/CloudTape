@@ -33,6 +33,15 @@ final class TrackTests: XCTestCase {
         XCTAssertEqual(enriched.artworkData, Data([0x01, 0x02]))
     }
 
+    func testMetadataEnrichmentPreservesAdditionDate() {
+        let url = URL(fileURLWithPath: "/music/A.mp3")
+        let date = Date(timeIntervalSince1970: 123)
+        let track = Track.from(url: url, root: url.deletingLastPathComponent(), dateAdded: date)
+        let enriched = track.withMetadata(title: "New title", artist: "Artist", album: nil, duration: 10, artworkData: nil)
+        XCTAssertEqual(enriched.dateAdded, date)
+        XCTAssertEqual(enriched.id, track.id)
+    }
+
     func testWithMetadataKeepsFilenameTitleWhenMetadataTitleIsBlank() {
         let url = URL(fileURLWithPath: "/tmp/CloudTape/Track One.mp3")
         let track = Track.from(url: url, root: URL(fileURLWithPath: "/tmp/CloudTape"))

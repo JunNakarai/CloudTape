@@ -133,3 +133,7 @@ app-target previews should be opened from Xcode Canvas; use the simulator mirror
 above for Codex in-browser visual review.
 
 After every UI change, follow the review checklist in `docs/ui-review-loop.md`.
+
+## Library Sorting
+
+See `docs/date-added-sort.md` for addition-date semantics, persistence, and tests.

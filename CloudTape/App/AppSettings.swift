@@ -4,6 +4,7 @@ enum AppSettingsKey {
     static let restoreLastPlayback = "restoreLastPlayback"
     static let rescanLibraryOnLaunch = "rescanLibraryOnLaunch"
     static let theme = "theme"
+    static let librarySortOrder = "librarySortOrder"
 }
 
 enum AppTheme: String, CaseIterable, Identifiable {
