@@ -1,5 +1,17 @@
 # Build 9 preservation and reproduction
 
+## Current layout after consolidation (2026-11-17)
+
+The canonical checkout is `/Volumes/repos/CloudTape` on `main`. The preservation
+and addition-date-sort branches were integrated into it; their separate worktrees
+were retired. The source and preservation tags below remain the recovery points
+for build 9. Current `main` also contains the later sorting feature and is not the
+exact released build-9 source. The layout and original-main details below describe
+the 2026-11-06 preservation, not additional active checkouts.
+
+Review evidence is now under
+`artifacts/local/date-added-sort-review-20261106/` in the canonical checkout.
+
 ## Stable source checkpoints
 
 - App: CloudTape `1.0.2 (9)`.
@@ -11,10 +23,12 @@
 
 The source snapshot includes all 10 modified and 3 untracked files from the original working tree. The later preservation commit only adds documentation and source-verification tooling. Original source bytes, index, and working-tree status were checked against a baseline; the original checkout was not cleaned, reset, staged, or switched.
 
-For new feature work, create a separate worktree from the source tag. Do not edit this preservation worktree or reuse build 9 for a new upload.
+For new development, use the consolidated `main`. Create any additional worktree
+under the common worktree directory. Use the source tag only when reproducing
+the release, and never reuse build 9 for a new upload.
 
 ```sh
-git -C /Volumes/repos/CloudTape worktree add -b feature/my-next-change /Volumes/repos/CloudTape-next cloudtape-1.0.2-build9-source
+git -C /Volumes/repos/CloudTape worktree add -b codex/my-next-change /Volumes/repos/worktrees/cloudtape-next main
 ```
 
 ## Link to the uploaded build
@@ -49,7 +63,11 @@ Use Xcode 27.2 (`27B52`) and the committed project. On this Mac set `DEVELOPER_D
 
 ```sh
 export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer
-python3 scripts/verify-build9-source.py
+# Reproduce the release without retaining a separate checkout.
+mkdir -p /Volumes/repos/CloudTape/build/build9-source
+git -C /Volumes/repos/CloudTape archive cloudtape-1.0.2-build9-source | tar -xf - -C /Volumes/repos/CloudTape/build/build9-source
+cd /Volumes/repos/CloudTape/build/build9-source
+python3 /Volumes/repos/CloudTape/scripts/verify-build9-source.py "$PWD"
 xcrun simctl list devices available
 # Replace DEVICE_ID with a compatible iOS Simulator identifier.
 # Initialize the local StoreKit test catalog before running the whole suite.

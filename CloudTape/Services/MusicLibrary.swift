@@ -10,6 +10,7 @@ final class MusicLibrary: ObservableObject {
     @Published var errorMessage: String?
 
     private let bookmarkKey = "selectedMusicFolderBookmark"
+    private let dateAddedStore = TrackDateAddedStore()
     private var accessedFolderURL: URL?
     private var scanTask: Task<Void, Never>?
     private let supportedExtensions: Set<String> = [
@@ -65,7 +66,8 @@ final class MusicLibrary: ObservableObject {
                 }.value
                 guard !Task.isCancelled, folderURL == url else { return }
 
-                tracks = scan.urls.map { Track.from(url: $0, root: url) }
+                let datesAdded = dateAddedStore.datesAdded(for: scan.urls, fileDates: scan.datesAdded, fileCreationDates: scan.creationDates)
+                tracks = scan.urls.map { Track.from(url: $0, root: url, dateAdded: datesAdded[$0]) }
                 pendingDownloadCount = scan.pendingDownloadCount
                 state = resolvedState(trackCount: tracks.count, pendingCount: scan.pendingDownloadCount)
                 enrichMetadata()
@@ -107,7 +109,7 @@ final class MusicLibrary: ObservableObject {
     nonisolated private static func audioFiles(
         in folder: URL,
         supportedExtensions: Set<String>
-    ) throws -> (urls: [URL], pendingDownloadCount: Int) {
+    ) throws -> (urls: [URL], datesAdded: [URL: Date], creationDates: [URL: Date], pendingDownloadCount: Int) {
         try Task.checkCancellation()
         guard let enumerator = FileManager.default.enumerator(
             at: folder,
@@ -115,14 +117,18 @@ final class MusicLibrary: ObservableObject {
                 .isRegularFileKey,
                 .isUbiquitousItemKey,
                 .localizedNameKey,
+                .addedToDirectoryDateKey,
+                .creationDateKey,
                 .ubiquitousItemDownloadingStatusKey
             ],
             options: [.skipsHiddenFiles]
         ) else {
-            return ([], 0)
+            return ([], [:], [:], 0)
         }
 
         var urls: [URL] = []
+        var datesAdded: [URL: Date] = [:]
+        var creationDates: [URL: Date] = [:]
         var pendingDownloadCount = 0
         for case let fileURL as URL in enumerator {
             try Task.checkCancellation()
@@ -136,12 +142,15 @@ final class MusicLibrary: ObservableObject {
             if requestDownloadIfNeeded(fileURL, resourceValues: resource) {
                 pendingDownloadCount += 1
             }
+            let fileDates = TrackFileDates.read(from: fileURL)
+            datesAdded[fileURL] = fileDates.preferredAdditionDate
+            creationDates[fileURL] = fileDates.creationDate
             urls.append(fileURL)
         }
 
         return (urls.sorted {
             $0.lastPathComponent.localizedStandardCompare($1.lastPathComponent) == .orderedAscending
-        }, pendingDownloadCount)
+        }, datesAdded, creationDates, pendingDownloadCount)
     }
 
     private func saveBookmark(for url: URL) {

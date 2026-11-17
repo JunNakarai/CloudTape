@@ -1,12 +1,12 @@
 schemaVersion: 1
 sessionDefaultsProfiles:
   cloudtape-ios:
-    projectPath: /Users/jun/Documents/CloudTape/CloudTape.xcodeproj
+    projectPath: /Volumes/repos/CloudTape/CloudTape.xcodeproj
     scheme: CloudTape
     configuration: Debug
     simulatorName: iPhone 17
-    simulatorId: 08E79F79-226C-4549-AC2B-A17FFD84DF7C
-    derivedDataPath: /private/tmp/cloudtape-xcodebuildmcp-derived
+    simulatorId: 192F8B6A-2A39-4C03-AF32-175BB4870033
+    derivedDataPath: /Volumes/repos/CloudTape/build/xcodebuildmcp-derived
     preferXcodebuild: true
     bundleId: io.github.junnakarai.cloudtape
     simulatorPlatform: iOS Simulator

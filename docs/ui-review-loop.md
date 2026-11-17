@@ -8,7 +8,7 @@ Use this loop after every CloudTape UI change.
 2. Run `build_run_sim` for the demo-media state:
 
 ```text
--CloudTapeDemoFolder /Users/jun/Documents/CloudTape/docs/assets/demo-media -CloudTapeDemoAutoplay
+-CloudTapeDemoFolder /Volumes/repos/CloudTape/docs/assets/demo-media -CloudTapeDemoAutoplay
 ```
 
 3. Start the simulator mirror:

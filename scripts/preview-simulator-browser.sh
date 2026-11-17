@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-SIMULATOR_ID="${SIMULATOR_ID:-08E79F79-226C-4549-AC2B-A17FFD84DF7C}"
+SIMULATOR_ID="${SIMULATOR_ID:-192F8B6A-2A39-4C03-AF32-175BB4870033}"
 
 cleanup_serve_sim() {
   npx --yes serve-sim@latest --kill "${SIMULATOR_ID}" >/dev/null 2>&1 || true

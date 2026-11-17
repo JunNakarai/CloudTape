@@ -103,13 +103,13 @@ Use the Build action or XcodeBuildMCP with:
 - project: `CloudTape.xcodeproj`
 - scheme: `CloudTape`
 - configuration: `Debug`
-- destination: `iPhone 17` / iOS 26.5 Simulator
+- destination: `iPhone 17` / iOS 27.2 Simulator
 - bundle ID: `io.github.junnakarai.cloudtape`
 
 For a demo library and mini player, launch with:
 
 ```bash
--CloudTapeDemoFolder /Users/jun/Documents/CloudTape/docs/assets/demo-media -CloudTapeDemoAutoplay
+-CloudTapeDemoFolder /Volumes/repos/CloudTape/docs/assets/demo-media -CloudTapeDemoAutoplay
 ```
 
 For a deterministic empty library state, launch with:
@@ -133,3 +133,29 @@ app-target previews should be opened from Xcode Canvas; use the simulator mirror
 above for Codex in-browser visual review.
 
 After every UI change, follow the review checklist in `docs/ui-review-loop.md`.
+
+## Library Sorting
+
+See `docs/date-added-sort.md` for addition-date semantics, persistence, and tests.
+
+## Canonical checkout
+
+Use `/Volumes/repos/CloudTape` on `main` for development. Build-9 preservation and
+addition-date sorting are integrated here; the old sibling checkouts are retired.
+Use `/Volumes/repos/worktrees/` for future worktrees. Local review evidence lives
+under `artifacts/local/` and generated build data under `build/`; neither creates
+a sibling project folder or enters Git. See `releases/build9-preservation.md`
+for the exact release-source tags and recovery instructions.
+
+Consolidation verification on 2026-11-17: one local StoreKit catalog test,
+all 45 unit tests, both sorting UI flows, and an unsigned generic-iOS Release
+build passed. The app, tests, and build inputs match the sorting branch exactly;
+the release tag still matches all 33 saved build-9 input hashes. Home, mini player,
+settings, and empty-library screenshots were inspected; no new layout issue was
+found (the existing artist/album subtitle uses normal ellipsis truncation).
+Evidence is local-only in `build/consolidation-20261117/`, including test result
+bundles, screenshots, relocation checksums, and logs. The Simulator was
+`0E9E41B3-DCBC-4C9E-8F27-D1C9A5CD574D` on iOS 27.2. XcodeBuildMCP and node/npm/npx
+were unavailable, so the prescribed `build_run_sim` and browser mirror were not
+run; native xcodebuild/XCTest and exported Simulator screenshots were used.
+This is local integration validation, not physical-device or distribution testing.

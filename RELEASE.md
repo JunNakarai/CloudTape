@@ -1,5 +1,14 @@
 # CloudTape 1.0.2 (9)
 
+## Current source after consolidation (2026-11-17)
+
+The owner reports that CloudTape has been released. The dated submission records
+below remain historical. The canonical `main` now includes the build-9 source and
+the subsequent library addition-date sorting feature. Sorting is an unreleased
+source change in these records; this consolidation does not publish a new build.
+The existing build-9 tags preserve the release source. Before any future upload,
+assign a new build number; the current project still records `1.0.2 (9)`.
+
 ## Recorded distribution status
 
 - Build 9 was uploaded on 2026-11-05 at 07:57:21 UTC and made available to the existing internal TestFlight group.

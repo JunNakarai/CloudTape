@@ -38,3 +38,6 @@ CloudTape 2.xcodeproj/
 CloudTape 3.xcodeproj/
 CloudTape 4.xcodeproj/
 CloudTape [0-9]*.xcodeproj/
+
+# Local review evidence (kept inside the canonical checkout)
+artifacts/local/
